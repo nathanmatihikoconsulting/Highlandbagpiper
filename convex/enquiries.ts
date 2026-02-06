@@ -1,3 +1,4 @@
+"use node";
 import { action, mutation, query } from "convex/server";
 import { v } from "convex/values";
 import crypto from "crypto";
