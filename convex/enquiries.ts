@@ -1,5 +1,5 @@
 "use node";
-import { action, mutation, query } from "./generated/server";
+import { action, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import crypto from "crypto";
 import { Resend } from "resend";
