@@ -45,15 +45,3 @@ body {
 .gap-form-field {
   @apply gap-4;
 }
-
-.text-primary {
-  @apply text-primary;
-}
-
-.text-primary-hover {
-  @apply text-primary-hover;
-}
-
-.text-secondary {
-  @apply text-secondary;
-}
