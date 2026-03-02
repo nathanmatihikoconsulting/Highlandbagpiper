@@ -1,241 +1,147 @@
-import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function getStatusClass(status: string) {
+  switch (status) {
+    case "pending": return "border-yellow-400 text-yellow-700 bg-yellow-50";
+    case "confirmed": return "border-blue-400 text-blue-700 bg-blue-50";
+    case "paid": return "border-primary text-primary bg-primary/10";
+    case "completed": return "border-gray-400 text-gray-600 bg-gray-100";
+    case "cancelled": return "border-red-400 text-red-700 bg-red-50";
+    default: return "";
+  }
+}
+
+function formatDate(d: string) { return new Date(d).toLocaleDateString(); }
+function formatTime(t: string) {
+  return new Date(`2000-01-01T${t}`).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState<"bookings" | "reviews">("bookings");
-  
   const myBookings = useQuery(api.bookings.getMyBookings);
   const bagpiperBookings = useQuery(api.bookings.getBagpiperBookings);
   const profile = useQuery(api.bagpipers.getMyProfile);
-  
   const updateBookingStatus = useMutation(api.bookings.updateBookingStatus);
 
   const handleStatusUpdate = async (bookingId: any, status: any) => {
     try {
       await updateBookingStatus({ bookingId, status });
       toast.success("Booking status updated!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update booking status");
-      console.error(error);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatTime = (timeString: string) => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "confirmed": return "bg-blue-100 text-blue-800";
-      case "paid": return "bg-green-100 text-green-800";
-      case "completed": return "bg-gray-100 text-gray-800";
-      case "cancelled": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
     }
   };
 
   if (myBookings === undefined || bagpiperBookings === undefined) {
     return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      <div className="max-w-6xl mx-auto space-y-4">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Card key={i}><CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent></Card>
+        ))}
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="border-b border-gray-200">
-          <nav className="flex">
-            <button
-              onClick={() => setActiveTab("bookings")}
-              className={`px-6 py-4 text-sm font-medium border-b-2 ${
-                activeTab === "bookings"
-                  ? "border-green-500 text-green-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              My Bookings ({myBookings.length})
-            </button>
-            {profile && (
-              <button
-                onClick={() => setActiveTab("reviews")}
-                className={`px-6 py-4 text-sm font-medium border-b-2 ${
-                  activeTab === "reviews"
-                    ? "border-green-500 text-green-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                Received Bookings ({bagpiperBookings.length})
-              </button>
-            )}
-          </nav>
-        </div>
+      <Tabs defaultValue="bookings">
+        <TabsList className="mb-4">
+          <TabsTrigger value="bookings">My Bookings ({myBookings.length})</TabsTrigger>
+          {profile && <TabsTrigger value="received">Received Bookings ({bagpiperBookings.length})</TabsTrigger>}
+        </TabsList>
 
-        <div className="p-6">
-          {activeTab === "bookings" && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">My Bookings</h2>
-              
-              {myBookings.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No bookings yet. Browse bagpipers to make your first booking!
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {myBookings.map((booking) => (
-                    <div key={booking._id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {booking.bagpiper?.name}
-                          </h3>
-                          <p className="text-gray-600">{booking.eventType}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </span>
+        <TabsContent value="bookings">
+          <div className="space-y-4">
+            <h2 className="text-xl font-heading font-semibold text-charcoal">My Bookings</h2>
+            {myBookings.length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground">No bookings yet. Browse bagpipers to make your first booking!</CardContent></Card>
+            ) : (
+              myBookings.map((booking) => (
+                <Card key={booking._id}>
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-heading font-semibold text-lg text-charcoal">{booking.bagpiper?.name}</h3>
+                        <p className="text-muted-foreground text-sm">{booking.eventType}</p>
                       </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">Date & Time:</span>
-                          <p>{formatDate(booking.eventDate)} at {formatTime(booking.eventTime)}</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Duration:</span>
-                          <p>{booking.duration} hours</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Total:</span>
-                          <p className="text-lg font-semibold text-green-600">
-                            ${booking.totalAmount.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3">
-                        <span className="font-medium text-sm">Location:</span>
-                        <p className="text-sm text-gray-600">{booking.location}</p>
-                      </div>
-                      
-                      {booking.specialRequests && (
-                        <div className="mt-3">
-                          <span className="font-medium text-sm">Special Requests:</span>
-                          <p className="text-sm text-gray-600">{booking.specialRequests}</p>
-                        </div>
-                      )}
+                      <Badge className={`capitalize ${getStatusClass(booking.status)}`} variant="outline">{booking.status}</Badge>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div><p className="font-medium">Date & Time</p><p className="text-muted-foreground">{formatDate(booking.eventDate)} at {formatTime(booking.eventTime)}</p></div>
+                      <div><p className="font-medium">Duration</p><p className="text-muted-foreground">{booking.duration} hours</p></div>
+                      <div><p className="font-medium">Total</p><p className="text-lg font-semibold text-primary">${booking.totalAmount.toFixed(2)}</p></div>
+                    </div>
+                    <div className="mt-3 text-sm">
+                      <p className="font-medium">Location</p><p className="text-muted-foreground">{booking.location}</p>
+                    </div>
+                    {booking.specialRequests && (
+                      <div className="mt-2 text-sm">
+                        <p className="font-medium">Special Requests</p><p className="text-muted-foreground">{booking.specialRequests}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
 
-          {activeTab === "reviews" && profile && (
+        {profile && (
+          <TabsContent value="received">
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Received Bookings</h2>
-              
+              <h2 className="text-xl font-heading font-semibold text-charcoal">Received Bookings</h2>
               {bagpiperBookings.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No bookings received yet. Make sure your profile is complete to start receiving bookings!
-                </div>
+                <Card><CardContent className="p-8 text-center text-muted-foreground">No bookings received yet. Make sure your profile is complete!</CardContent></Card>
               ) : (
-                <div className="space-y-4">
-                  {bagpiperBookings.map((booking) => (
-                    <div key={booking._id} className="border border-gray-200 rounded-lg p-4">
+                bagpiperBookings.map((booking) => (
+                  <Card key={booking._id}>
+                    <CardContent className="p-5">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-semibold text-lg">
-                            {booking.customerName}
-                          </h3>
-                          <p className="text-gray-600">{booking.eventType}</p>
+                          <h3 className="font-heading font-semibold text-lg text-charcoal">{booking.customerName}</h3>
+                          <p className="text-muted-foreground text-sm">{booking.eventType}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </span>
+                        <div className="flex items-center gap-2 flex-wrap justify-end">
+                          <Badge className={`capitalize ${getStatusClass(booking.status)}`} variant="outline">{booking.status}</Badge>
                           {booking.status === "pending" && (
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleStatusUpdate(booking._id, "confirmed")}
-                                className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => handleStatusUpdate(booking._id, "cancelled")}
-                                className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                              >
-                                Decline
-                              </button>
-                            </div>
+                            <>
+                              <Button size="sm" className="bg-primary hover:bg-primary-hover text-white" onClick={() => handleStatusUpdate(booking._id, "confirmed")}>Accept</Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleStatusUpdate(booking._id, "cancelled")}>Decline</Button>
+                            </>
                           )}
                           {booking.status === "paid" && (
-                            <button
-                              onClick={() => handleStatusUpdate(booking._id, "completed")}
-                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                            >
-                              Mark Complete
-                            </button>
+                            <Button size="sm" variant="secondary" onClick={() => handleStatusUpdate(booking._id, "completed")}>Mark Complete</Button>
                           )}
                         </div>
                       </div>
-                      
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">Date & Time:</span>
-                          <p>{formatDate(booking.eventDate)} at {formatTime(booking.eventTime)}</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Duration:</span>
-                          <p>{booking.duration} hours</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Your Earnings:</span>
-                          <p className="text-lg font-semibold text-green-600">
-                            ${booking.bagpiperAmount.toFixed(2)}
-                          </p>
-                        </div>
+                        <div><p className="font-medium">Date & Time</p><p className="text-muted-foreground">{formatDate(booking.eventDate)} at {formatTime(booking.eventTime)}</p></div>
+                        <div><p className="font-medium">Duration</p><p className="text-muted-foreground">{booking.duration} hours</p></div>
+                        <div><p className="font-medium">Your Earnings</p><p className="text-lg font-semibold text-primary">${booking.bagpiperAmount.toFixed(2)}</p></div>
                       </div>
-                      
                       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">Location:</span>
-                          <p className="text-gray-600">{booking.location}</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Contact:</span>
-                          <p className="text-gray-600">
-                            {booking.customerEmail} • {booking.customerPhone}
-                          </p>
-                        </div>
+                        <div><p className="font-medium">Location</p><p className="text-muted-foreground">{booking.location}</p></div>
+                        <div><p className="font-medium">Contact</p><p className="text-muted-foreground">{booking.customerEmail} · {booking.customerPhone}</p></div>
                       </div>
-                      
                       {booking.specialRequests && (
-                        <div className="mt-3">
-                          <span className="font-medium text-sm">Special Requests:</span>
-                          <p className="text-sm text-gray-600">{booking.specialRequests}</p>
+                        <div className="mt-2 text-sm">
+                          <p className="font-medium">Special Requests</p><p className="text-muted-foreground">{booking.specialRequests}</p>
                         </div>
                       )}
-                    </div>
-                  ))}
-                </div>
+                    </CardContent>
+                  </Card>
+                ))
               )}
             </div>
-          )}
-        </div>
-      </div>
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 }

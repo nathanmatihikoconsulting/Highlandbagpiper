@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { BagpiperCard } from "./BagpiperCard";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function BagpiperSearch() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,110 +17,97 @@ export function BagpiperSearch() {
   const bagpipers = useQuery(api.bagpipers.searchBagpipers, {
     searchTerm: searchTerm || undefined,
     city: city || undefined,
-    country: country || undefined,
-    specialty: specialty || undefined,
+    country: country !== "all" ? country || undefined : undefined,
+    specialty: specialty !== "all" ? specialty || undefined : undefined,
   });
 
   const locations = useQuery(api.bagpipers.getLocations);
 
   const specialties = [
-    "Weddings",
-    "Funerals",
-    "Corporate Events",
-    "Parades",
-    "Graduations",
-    "Military Ceremonies",
-    "Highland Games",
-    "Burns Night",
+    "Weddings", "Funerals", "Corporate Events", "Parades",
+    "Graduations", "Military Ceremonies", "Highland Games", "Burns Night",
   ];
-
-  const inputClass = "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary bg-white text-charcoal";
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-        <h2 className="text-2xl font-heading font-semibold mb-6 text-charcoal">Find Bagpipers</h2>
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-heading font-semibold mb-6 text-charcoal">Find Bagpipers</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-1.5">
+              <Label>Search by name</Label>
+              <Input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Bagpiper name..."
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Search by name
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Bagpiper name..."
-              className={inputClass}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label>City</Label>
+              <Input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="City..."
+                list="city-options"
+              />
+              <datalist id="city-options">
+                {locations?.cities.map((c) => <option key={c} value={c} />)}
+              </datalist>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              City
-            </label>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City..."
-              className={inputClass}
-              list="city-options"
-            />
-            <datalist id="city-options">
-              {locations?.cities.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
-          </div>
+            <div className="space-y-1.5">
+              <Label>Country</Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All countries</SelectItem>
+                  {locations?.countries.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Country
-            </label>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">All countries</option>
-              {locations?.countries.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <div className="space-y-1.5">
+              <Label>Specialty</Label>
+              <Select value={specialty} onValueChange={setSpecialty}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All specialties" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All specialties</SelectItem>
+                  {specialties.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Specialty
-            </label>
-            <select
-              value={specialty}
-              onChange={(e) => setSpecialty(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">All specialties</option>
-              {specialties.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bagpipers === undefined ? (
-          <div className="col-span-full flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <Skeleton className="w-full h-64" />
+              <CardContent className="p-5 space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-9 w-full" />
+              </CardContent>
+            </Card>
+          ))
         ) : bagpipers.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500">
+          <div className="col-span-full text-center py-12 text-muted-foreground">
             No bagpipers found matching your criteria.
           </div>
         ) : (
-          bagpipers.map((bagpiper) => (
-            <BagpiperCard key={bagpiper._id} bagpiper={bagpiper} />
-          ))
+          bagpipers.map((bagpiper) => <BagpiperCard key={bagpiper._id} bagpiper={bagpiper} />)
         )}
       </div>
     </div>

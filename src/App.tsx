@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
+import { Button } from "@/components/ui/button";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
@@ -73,12 +74,12 @@ export default function App() {
               <SignOutButton />
             </Authenticated>
             <Unauthenticated>
-              <button
+              <Button
                 onClick={() => setCurrentView("signin")}
-                className="px-4 py-2 bg-white text-primary rounded font-medium text-sm hover:bg-stone transition-colors"
+                className="bg-white text-primary hover:bg-stone"
               >
                 Sign In
-              </button>
+              </Button>
             </Unauthenticated>
           </div>
         </div>

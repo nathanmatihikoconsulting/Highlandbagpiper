@@ -5,6 +5,28 @@
 :root {
   --color-light: #EFEAE7;
   --color-dark: #1E1E1E;
+
+  /* ShadCN CSS variables — mapped to Highland Bagpiper brand */
+  --background: 20 20% 92%;        /* stone #EFEAE7 */
+  --foreground: 0 0% 12%;          /* charcoal #1E1E1E */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 12%;
+  --primary: 153 30% 17%;          /* deep green #1F3A2E */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 20 10% 88%;
+  --secondary-foreground: 0 0% 12%;
+  --muted: 20 10% 88%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 20 10% 88%;
+  --accent-foreground: 0 0% 12%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 20 8% 82%;
+  --input: 20 8% 82%;
+  --ring: 153 30% 17%;
+  --radius: 0.375rem;
 }
 
 body {

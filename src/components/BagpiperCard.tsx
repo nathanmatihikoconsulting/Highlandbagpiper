@@ -3,6 +3,10 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { BookingModal } from "./BookingModal";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface BagpiperCardProps {
   bagpiper: {
@@ -23,151 +27,88 @@ interface BagpiperCardProps {
   };
 }
 
+function renderStars(rating: number) {
+  return Array.from({ length: 5 }, (_, i) => (
+    <span key={i} className={`text-base ${i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"}`}>★</span>
+  ));
+}
+
 export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
   const [showBooking, setShowBooking] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <span
-        key={i}
-        className={`text-lg ${
-          i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"
-        }`}
-      >
-        ★
-      </span>
-    ));
-  };
-
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-gray-100">
+      <Card className="overflow-hidden hover:shadow-md transition-shadow">
         <div className="bg-gray-100">
           {bagpiper.profileImageUrl ? (
-            <img
-              src={bagpiper.profileImageUrl}
-              alt={bagpiper.name}
-              className="w-full h-64 object-cover"
-            />
+            <img src={bagpiper.profileImageUrl} alt={bagpiper.name} className="w-full h-64 object-cover" />
           ) : (
             <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-teal/10 flex items-center justify-center">
-              <span className="text-4xl opacity-40">♪</span>
+              <span className="text-4xl opacity-30">♪</span>
             </div>
           )}
         </div>
 
-        <div className="p-5">
-          <h3 className="text-xl font-heading font-semibold text-charcoal mb-1">
-            {bagpiper.name}
-          </h3>
-
-          <p className="text-gray-500 text-sm mb-2">
-            {bagpiper.city}, {bagpiper.country}
-          </p>
+        <CardContent className="p-5">
+          <h3 className="text-xl font-heading font-semibold text-charcoal mb-1">{bagpiper.name}</h3>
+          <p className="text-muted-foreground text-sm mb-2">{bagpiper.city}, {bagpiper.country}</p>
 
           {bagpiper.averageRating && (
             <div className="flex items-center gap-2 mb-2">
-              <div className="flex">
-                {renderStars(bagpiper.averageRating)}
-              </div>
-              <span className="text-sm text-gray-500">
-                ({bagpiper.totalReviews} reviews)
-              </span>
+              <div className="flex">{renderStars(bagpiper.averageRating)}</div>
+              <span className="text-sm text-muted-foreground">({bagpiper.totalReviews})</span>
             </div>
           )}
 
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-            {bagpiper.bio}
-          </p>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{bagpiper.bio}</p>
 
           <div className="flex flex-wrap gap-1 mb-4">
-            {bagpiper.specialties.slice(0, 2).map((specialty) => (
-              <span
-                key={specialty}
-                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded font-medium"
-              >
-                {specialty}
-              </span>
+            {bagpiper.specialties.slice(0, 2).map((s) => (
+              <Badge key={s} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">{s}</Badge>
             ))}
             {bagpiper.specialties.length > 2 && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded font-medium">
-                +{bagpiper.specialties.length - 2} more
-              </span>
+              <Badge variant="outline" className="text-muted-foreground">+{bagpiper.specialties.length - 2} more</Badge>
             )}
           </div>
 
-          <div className="text-lg font-semibold text-primary mb-4">
+          <p className="text-lg font-semibold text-primary mb-4">
             ${bagpiper.hourlyRate}/hour
-            <span className="text-sm text-gray-400 font-normal ml-1">
-              ({bagpiper.minimumBooking}h min)
-            </span>
-          </div>
+            <span className="text-sm font-normal text-muted-foreground ml-1">({bagpiper.minimumBooking}h min)</span>
+          </p>
 
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowDetails(true)}
-              className="flex-1 px-3 py-2 border border-primary text-primary rounded hover:bg-primary/5 transition-colors text-sm font-medium"
-            >
+            <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/5" onClick={() => setShowDetails(true)}>
               View Details
-            </button>
-            <button
-              onClick={() => setShowBooking(true)}
-              className="flex-1 px-3 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors text-sm font-medium"
-            >
+            </Button>
+            <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={() => setShowBooking(true)}>
               Book Now
-            </button>
+            </Button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {showBooking && (
-        <BookingModal
-          bagpiper={bagpiper}
-          onClose={() => setShowBooking(false)}
-        />
-      )}
+      {showBooking && <BookingModal bagpiper={bagpiper} onClose={() => setShowBooking(false)} />}
 
-      {showDetails && (
-        <BagpiperDetailsModal
-          bagpiper={bagpiper}
-          onClose={() => setShowDetails(false)}
-          onBook={() => {
-            setShowDetails(false);
-            setShowBooking(true);
-          }}
-        />
-      )}
+      <BagpiperDetailsModal
+        bagpiper={bagpiper}
+        open={showDetails}
+        onClose={() => setShowDetails(false)}
+        onBook={() => { setShowDetails(false); setShowBooking(true); }}
+      />
     </>
   );
 }
 
 function BagpiperDetailsModal({
-  bagpiper,
-  onClose,
-  onBook
+  bagpiper, open, onClose, onBook,
 }: {
   bagpiper: BagpiperCardProps["bagpiper"];
+  open: boolean;
   onClose: () => void;
   onBook: () => void;
 }) {
-  const files = useQuery(api.files.getBagpiperFiles, {
-    bagpiperId: bagpiper._id,
-    publicOnly: true
-  });
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <span
-        key={i}
-        className={`text-lg ${
-          i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"
-        }`}
-      >
-        ★
-      </span>
-    ));
-  };
+  const files = useQuery(api.files.getBagpiperFiles, { bagpiperId: bagpiper._id, publicOnly: true });
 
   const getFileIcon = (fileType: string) => {
     switch (fileType) {
@@ -180,144 +121,93 @@ function BagpiperDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-heading font-bold text-charcoal">{bagpiper.name}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-            >
-              ✕
-            </button>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-heading text-2xl text-charcoal">{bagpiper.name}</DialogTitle>
+        </DialogHeader>
+
+        {bagpiper.profileImageUrl && (
+          <img src={bagpiper.profileImageUrl} alt={bagpiper.name} className="w-full max-w-sm h-80 object-cover rounded-lg mx-auto" />
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold text-charcoal mb-1">Location</h3>
+            <p className="text-muted-foreground text-sm">{bagpiper.location} · Travel radius: {bagpiper.travelRadius} miles</p>
           </div>
 
-          {bagpiper.profileImageUrl && (
-            <img
-              src={bagpiper.profileImageUrl}
-              alt={bagpiper.name}
-              className="w-full max-w-sm h-80 object-cover rounded-lg mb-4 mx-auto"
-            />
+          {bagpiper.averageRating && (
+            <div>
+              <h3 className="font-semibold text-charcoal mb-1">Rating</h3>
+              <div className="flex items-center gap-2">
+                <div className="flex">{renderStars(bagpiper.averageRating)}</div>
+                <span className="text-muted-foreground text-sm">{bagpiper.averageRating.toFixed(1)} ({bagpiper.totalReviews} reviews)</span>
+              </div>
+            </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-charcoal mb-1">Location</h3>
-              <p className="text-gray-600">
-                {bagpiper.location} · Travel radius: {bagpiper.travelRadius} miles
-              </p>
+          <div>
+            <h3 className="font-semibold text-charcoal mb-1">About</h3>
+            <p className="text-muted-foreground text-sm">{bagpiper.bio}</p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-charcoal mb-2">Specialties</h3>
+            <div className="flex flex-wrap gap-2">
+              {bagpiper.specialties.map((s) => (
+                <Badge key={s} variant="secondary" className="bg-primary/10 text-primary">{s}</Badge>
+              ))}
             </div>
+          </div>
 
-            {bagpiper.averageRating && (
-              <div>
-                <h3 className="font-semibold text-charcoal mb-1">Rating</h3>
-                <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {renderStars(bagpiper.averageRating)}
-                  </div>
-                  <span className="text-gray-600">
-                    {bagpiper.averageRating.toFixed(1)} ({bagpiper.totalReviews} reviews)
-                  </span>
-                </div>
-              </div>
-            )}
+          <div>
+            <h3 className="font-semibold text-charcoal mb-1">Pricing</h3>
+            <p className="text-2xl font-heading font-bold text-primary">${bagpiper.hourlyRate}/hour</p>
+            <p className="text-muted-foreground text-sm">Minimum booking: {bagpiper.minimumBooking} hours</p>
+          </div>
 
+          {bagpiper.youtubeVideos.length > 0 && (
             <div>
-              <h3 className="font-semibold text-charcoal mb-1">About</h3>
-              <p className="text-gray-600">{bagpiper.bio}</p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-charcoal mb-2">Specialties</h3>
-              <div className="flex flex-wrap gap-2">
-                {bagpiper.specialties.map((specialty) => (
-                  <span
-                    key={specialty}
-                    className="px-3 py-1 bg-primary/10 text-primary rounded text-sm font-medium"
-                  >
-                    {specialty}
-                  </span>
+              <h3 className="font-semibold text-charcoal mb-2">Performance Videos</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {bagpiper.youtubeVideos.map((videoId, index) => (
+                  <iframe key={index} src={`https://www.youtube.com/embed/${videoId}`} title={`Performance ${index + 1}`} className="w-full h-48 rounded-lg" allowFullScreen />
                 ))}
               </div>
             </div>
+          )}
 
+          {files && files.length > 0 && (
             <div>
-              <h3 className="font-semibold text-charcoal mb-1">Pricing</h3>
-              <p className="text-2xl font-heading font-bold text-primary">
-                ${bagpiper.hourlyRate}/hour
-              </p>
-              <p className="text-gray-500 text-sm">
-                Minimum booking: {bagpiper.minimumBooking} hours
-              </p>
-            </div>
-
-            {bagpiper.youtubeVideos.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-charcoal mb-2">Performance Videos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {bagpiper.youtubeVideos.map((videoId, index) => (
-                    <div key={index}>
-                      <iframe
-                        src={`https://www.youtube.com/embed/${videoId}`}
-                        title={`Performance ${index + 1}`}
-                        className="w-full h-48 rounded-lg"
-                        allowFullScreen
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {files && files.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-charcoal mb-2">Additional Files</h3>
-                <div className="space-y-2">
-                  {files.map((file) => (
-                    <div key={file._id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl text-primary">{getFileIcon(file.fileType)}</span>
-                        <div>
-                          <p className="font-medium text-charcoal">{file.fileName}</p>
-                          {file.description && (
-                            <p className="text-sm text-gray-500">{file.description}</p>
-                          )}
-                        </div>
+              <h3 className="font-semibold text-charcoal mb-2">Additional Files</h3>
+              <div className="space-y-2">
+                {files.map((file) => (
+                  <div key={file._id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary">{getFileIcon(file.fileType)}</span>
+                      <div>
+                        <p className="font-medium text-sm text-charcoal">{file.fileName}</p>
+                        {file.description && <p className="text-xs text-muted-foreground">{file.description}</p>}
                       </div>
-                      {file.url && (
-                        <a
-                          href={file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary-hover transition-colors"
-                        >
-                          View
-                        </a>
-                      )}
                     </div>
-                  ))}
-                </div>
+                    {file.url && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={file.url} target="_blank" rel="noopener noreferrer">View</a>
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              Close
-            </button>
-            <button
-              onClick={onBook}
-              className="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors text-sm font-medium"
-            >
-              Book Now
-            </button>
-          </div>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+
+        <div className="flex gap-3 pt-4 border-t">
+          <Button variant="outline" className="flex-1" onClick={onClose}>Close</Button>
+          <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={onBook}>Book Now</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
