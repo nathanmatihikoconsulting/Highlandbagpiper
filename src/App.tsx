@@ -3,7 +3,7 @@ import { api } from "../convex/_generated/api";
 import { SignInForm } from "./SignInForm";
 import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
@@ -12,18 +12,20 @@ export default function App() {
   const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b shadow-sm">
+    <div className="min-h-screen flex flex-col bg-stone">
+      <header className="sticky top-0 z-10 bg-primary shadow-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-green-700">🎵 Highland Bagpiper</h1>
-            <nav className="hidden md:flex gap-6">
+          <div className="flex items-center gap-6">
+            <h1 className="text-xl font-heading font-semibold text-white tracking-wide">
+              Highland Bagpiper
+            </h1>
+            <nav className="hidden md:flex gap-1">
               <button
                 onClick={() => setCurrentView("search")}
-                className={`px-3 py-2 rounded-md transition-colors ${
-                  currentView === "search" 
-                    ? "bg-green-100 text-green-700" 
-                    : "text-gray-600 hover:text-green-700"
+                className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  currentView === "search"
+                    ? "bg-white/20 text-white"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
                 }`}
               >
                 Find Bagpipers
@@ -31,20 +33,20 @@ export default function App() {
               <Authenticated>
                 <button
                   onClick={() => setCurrentView("profile")}
-                  className={`px-3 py-2 rounded-md transition-colors ${
-                    currentView === "profile" 
-                      ? "bg-green-100 text-green-700" 
-                      : "text-gray-600 hover:text-green-700"
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                    currentView === "profile"
+                      ? "bg-white/20 text-white"
+                      : "text-white/80 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   My Profile
                 </button>
                 <button
                   onClick={() => setCurrentView("dashboard")}
-                  className={`px-3 py-2 rounded-md transition-colors ${
-                    currentView === "dashboard" 
-                      ? "bg-green-100 text-green-700" 
-                      : "text-gray-600 hover:text-green-700"
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+                    currentView === "dashboard"
+                      ? "bg-white/20 text-white"
+                      : "text-white/80 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   Dashboard
@@ -59,7 +61,7 @@ export default function App() {
             <Unauthenticated>
               <button
                 onClick={() => setCurrentView("signin")}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                className="px-4 py-2 bg-white text-primary rounded font-medium text-sm hover:bg-stone transition-colors"
               >
                 Sign In
               </button>
@@ -72,9 +74,9 @@ export default function App() {
         <Content currentView={currentView} setCurrentView={setCurrentView} />
       </main>
 
-      <footer className="bg-gray-800 text-white py-8">
+      <footer className="bg-charcoal text-white py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p>&copy; 2024 Highland Bagpiper. Connecting tradition with celebration.</p>
+          <p className="text-white/70 text-sm">&copy; 2024 Highland Bagpiper. Connecting tradition with celebration.</p>
         </div>
       </footer>
 
@@ -83,16 +85,22 @@ export default function App() {
   );
 }
 
-function Content({ currentView, setCurrentView }: { 
+function Content({ currentView, setCurrentView }: {
   currentView: "search" | "profile" | "dashboard" | "signin";
   setCurrentView: (view: "search" | "profile" | "dashboard" | "signin") => void;
 }) {
   const loggedInUser = useQuery(api.auth.loggedInUser);
 
+  useEffect(() => {
+    if (loggedInUser && currentView === "signin") {
+      setCurrentView("search");
+    }
+  }, [loggedInUser, currentView, setCurrentView]);
+
   if (loggedInUser === undefined) {
     return (
       <div className="flex justify-center items-center min-h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -102,7 +110,7 @@ function Content({ currentView, setCurrentView }: {
       <Unauthenticated>
         {currentView === "signin" ? (
           <div className="max-w-md mx-auto py-12">
-            <h2 className="text-3xl font-bold text-center mb-2">Welcome Back</h2>
+            <h2 className="text-3xl font-heading font-bold text-center mb-2 text-charcoal">Welcome Back</h2>
             <p className="text-gray-600 text-center mb-8">Sign in to book a bagpiper or manage your profile</p>
             <div className="bg-white rounded-lg shadow-sm p-8">
               <SignInForm />
@@ -110,7 +118,7 @@ function Content({ currentView, setCurrentView }: {
             <p className="text-center mt-4">
               <button
                 onClick={() => setCurrentView("search")}
-                className="text-green-600 hover:text-green-700 hover:underline font-medium"
+                className="text-teal hover:text-teal-hover hover:underline font-medium text-sm"
               >
                 ← Back to browsing
               </button>
@@ -119,16 +127,19 @@ function Content({ currentView, setCurrentView }: {
         ) : currentView === "search" ? (
           <div className="space-y-8">
             <div className="text-center py-12">
-              <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                Find the Perfect Bagpiper
+              <h1 className="text-5xl font-heading font-bold text-charcoal mb-4">
+                Find a trusted Highland bagpiper
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Connect with professional bagpipers for weddings, funerals, and special events
+              <p className="text-xl text-gray-600 mb-2">
+                for ceremonies and events
+              </p>
+              <p className="text-gray-500">
+                From weddings and funerals to commemorations and civic events.
               </p>
             </div>
             <BagpiperSearch />
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <h2 className="text-2xl font-semibold mb-4">Ready to book?</h2>
+            <div className="bg-white rounded-lg shadow-sm p-8 text-center border border-gray-100">
+              <h2 className="text-2xl font-heading font-semibold mb-4 text-charcoal">Ready to book?</h2>
               <p className="text-gray-600 mb-6">Sign in to contact bagpipers and make bookings</p>
               <SignInForm />
             </div>

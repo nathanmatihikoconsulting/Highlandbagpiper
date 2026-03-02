@@ -29,7 +29,7 @@ export function BagpiperSearch() {
 
   const countries = [
     "New Zealand",
-    "Australia", 
+    "Australia",
     "England",
     "Scotland",
     "Wales",
@@ -53,14 +53,16 @@ export function BagpiperSearch() {
     "Switzerland",
   ];
 
+  const inputClass = "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary bg-white text-charcoal";
+
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-semibold mb-6">Find Bagpipers</h2>
-        
+      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <h2 className="text-2xl font-heading font-semibold mb-6 text-charcoal">Find Bagpipers</h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Search by name
             </label>
             <input
@@ -68,12 +70,12 @@ export function BagpiperSearch() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Bagpiper name..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               City
             </label>
             <input
@@ -81,18 +83,18 @@ export function BagpiperSearch() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="City..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={inputClass}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Country
             </label>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={inputClass}
             >
               <option value="">All countries</option>
               {countries.map((c) => (
@@ -102,13 +104,13 @@ export function BagpiperSearch() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
               Specialty
             </label>
             <select
               value={specialty}
               onChange={(e) => setSpecialty(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={inputClass}
             >
               <option value="">All specialties</option>
               {specialties.map((s) => (
@@ -122,7 +124,7 @@ export function BagpiperSearch() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bagpipers === undefined ? (
           <div className="col-span-full flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : bagpipers.length === 0 ? (
           <div className="col-span-full text-center py-8 text-gray-500">

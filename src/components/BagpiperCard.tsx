@@ -32,7 +32,7 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
       <span
         key={i}
         className={`text-lg ${
-          i < Math.floor(rating) ? "text-yellow-400" : "text-gray-300"
+          i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"
         }`}
       >
         ★
@@ -42,8 +42,8 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-        <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-gray-100">
+        <div className="bg-gray-100">
           {bagpiper.profileImageUrl ? (
             <img
               src={bagpiper.profileImageUrl}
@@ -51,18 +51,18 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
               className="w-full h-64 object-cover"
             />
           ) : (
-            <div className="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-              <span className="text-4xl">🎵</span>
+            <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-teal/10 flex items-center justify-center">
+              <span className="text-4xl opacity-40">♪</span>
             </div>
           )}
         </div>
 
-        <div className="p-4">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="p-5">
+          <h3 className="text-xl font-heading font-semibold text-charcoal mb-1">
             {bagpiper.name}
           </h3>
-          
-          <p className="text-gray-600 text-sm mb-2">
+
+          <p className="text-gray-500 text-sm mb-2">
             {bagpiper.city}, {bagpiper.country}
           </p>
 
@@ -71,35 +71,35 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
               <div className="flex">
                 {renderStars(bagpiper.averageRating)}
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-500">
                 ({bagpiper.totalReviews} reviews)
               </span>
             </div>
           )}
 
-          <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
             {bagpiper.bio}
           </p>
 
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-1 mb-4">
             {bagpiper.specialties.slice(0, 2).map((specialty) => (
               <span
                 key={specialty}
-                className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
+                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded font-medium"
               >
                 {specialty}
               </span>
             ))}
             {bagpiper.specialties.length > 2 && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+              <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded font-medium">
                 +{bagpiper.specialties.length - 2} more
               </span>
             )}
           </div>
 
-          <div className="text-lg font-semibold text-green-600 mb-3">
+          <div className="text-lg font-semibold text-primary mb-4">
             ${bagpiper.hourlyRate}/hour
-            <span className="text-sm text-gray-500 font-normal">
+            <span className="text-sm text-gray-400 font-normal ml-1">
               ({bagpiper.minimumBooking}h min)
             </span>
           </div>
@@ -107,13 +107,13 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
           <div className="flex gap-2">
             <button
               onClick={() => setShowDetails(true)}
-              className="flex-1 px-3 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50 transition-colors text-sm"
+              className="flex-1 px-3 py-2 border border-primary text-primary rounded hover:bg-primary/5 transition-colors text-sm font-medium"
             >
               View Details
             </button>
             <button
               onClick={() => setShowBooking(true)}
-              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+              className="flex-1 px-3 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors text-sm font-medium"
             >
               Book Now
             </button>
@@ -142,18 +142,18 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
   );
 }
 
-function BagpiperDetailsModal({ 
-  bagpiper, 
-  onClose, 
-  onBook 
-}: { 
+function BagpiperDetailsModal({
+  bagpiper,
+  onClose,
+  onBook
+}: {
   bagpiper: BagpiperCardProps["bagpiper"];
   onClose: () => void;
   onBook: () => void;
 }) {
-  const files = useQuery(api.files.getBagpiperFiles, { 
-    bagpiperId: bagpiper._id, 
-    publicOnly: true 
+  const files = useQuery(api.files.getBagpiperFiles, {
+    bagpiperId: bagpiper._id,
+    publicOnly: true
   });
 
   const renderStars = (rating: number) => {
@@ -161,7 +161,7 @@ function BagpiperDetailsModal({
       <span
         key={i}
         className={`text-lg ${
-          i < Math.floor(rating) ? "text-yellow-400" : "text-gray-300"
+          i < Math.floor(rating) ? "text-yellow-500" : "text-gray-300"
         }`}
       >
         ★
@@ -171,23 +171,23 @@ function BagpiperDetailsModal({
 
   const getFileIcon = (fileType: string) => {
     switch (fileType) {
-      case "audio": return "🎵";
-      case "certificate": return "🏆";
-      case "document": return "📄";
-      case "image": return "🖼️";
-      default: return "📁";
+      case "audio": return "♪";
+      case "certificate": return "★";
+      case "document": return "▤";
+      case "image": return "▨";
+      default: return "▪";
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">{bagpiper.name}</h2>
+            <h2 className="text-2xl font-heading font-bold text-charcoal">{bagpiper.name}</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 text-xl leading-none"
             >
               ✕
             </button>
@@ -203,15 +203,15 @@ function BagpiperDetailsModal({
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
-              <p className="text-gray-700">
-                {bagpiper.location} • Travel radius: {bagpiper.travelRadius} miles
+              <h3 className="font-semibold text-charcoal mb-1">Location</h3>
+              <p className="text-gray-600">
+                {bagpiper.location} · Travel radius: {bagpiper.travelRadius} miles
               </p>
             </div>
 
             {bagpiper.averageRating && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Rating</h3>
+                <h3 className="font-semibold text-charcoal mb-1">Rating</h3>
                 <div className="flex items-center gap-2">
                   <div className="flex">
                     {renderStars(bagpiper.averageRating)}
@@ -224,17 +224,17 @@ function BagpiperDetailsModal({
             )}
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">About</h3>
-              <p className="text-gray-700">{bagpiper.bio}</p>
+              <h3 className="font-semibold text-charcoal mb-1">About</h3>
+              <p className="text-gray-600">{bagpiper.bio}</p>
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Specialties</h3>
+              <h3 className="font-semibold text-charcoal mb-2">Specialties</h3>
               <div className="flex flex-wrap gap-2">
                 {bagpiper.specialties.map((specialty) => (
                   <span
                     key={specialty}
-                    className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
+                    className="px-3 py-1 bg-primary/10 text-primary rounded text-sm font-medium"
                   >
                     {specialty}
                   </span>
@@ -243,21 +243,21 @@ function BagpiperDetailsModal({
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Pricing</h3>
-              <p className="text-2xl font-bold text-green-600">
+              <h3 className="font-semibold text-charcoal mb-1">Pricing</h3>
+              <p className="text-2xl font-heading font-bold text-primary">
                 ${bagpiper.hourlyRate}/hour
               </p>
-              <p className="text-gray-600">
+              <p className="text-gray-500 text-sm">
                 Minimum booking: {bagpiper.minimumBooking} hours
               </p>
             </div>
 
             {bagpiper.youtubeVideos.length > 0 && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Performance Videos</h3>
+                <h3 className="font-semibold text-charcoal mb-2">Performance Videos</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {bagpiper.youtubeVideos.map((videoId, index) => (
-                    <div key={index} className="aspect-w-16 aspect-h-9">
+                    <div key={index}>
                       <iframe
                         src={`https://www.youtube.com/embed/${videoId}`}
                         title={`Performance ${index + 1}`}
@@ -272,16 +272,16 @@ function BagpiperDetailsModal({
 
             {files && files.length > 0 && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Additional Files</h3>
+                <h3 className="font-semibold text-charcoal mb-2">Additional Files</h3>
                 <div className="space-y-2">
                   {files.map((file) => (
-                    <div key={file._id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                    <div key={file._id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{getFileIcon(file.fileType)}</span>
+                        <span className="text-xl text-primary">{getFileIcon(file.fileType)}</span>
                         <div>
-                          <p className="font-medium text-gray-900">{file.fileName}</p>
+                          <p className="font-medium text-charcoal">{file.fileName}</p>
                           {file.description && (
-                            <p className="text-sm text-gray-600">{file.description}</p>
+                            <p className="text-sm text-gray-500">{file.description}</p>
                           )}
                         </div>
                       </div>
@@ -290,7 +290,7 @@ function BagpiperDetailsModal({
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                          className="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary-hover transition-colors"
                         >
                           View
                         </a>
@@ -302,16 +302,16 @@ function BagpiperDetailsModal({
             )}
           </div>
 
-          <div className="flex gap-3 mt-6 pt-6 border-t">
+          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
             >
               Close
             </button>
             <button
               onClick={onBook}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors text-sm font-medium"
             >
               Book Now
             </button>

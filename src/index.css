@@ -3,17 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --color-light: #ffffff;
-  --color-dark: #171717;
-}
-
-.accent-text {
-  @apply text-slate-600;
+  --color-light: #F4F2EE;
+  --color-dark: #1E1E1E;
 }
 
 body {
   font-family:
-    "Inter Variable",
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -22,14 +17,17 @@ body {
     Roboto,
     "Helvetica Neue",
     Arial,
-    "Noto Sans",
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol",
-    "Noto Color Emoji";
+    sans-serif;
   color: var(--color-dark);
   background: var(--color-light);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.accent-text {
+  @apply text-teal;
 }
 
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */
