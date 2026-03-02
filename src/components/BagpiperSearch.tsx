@@ -12,30 +12,22 @@ export function BagpiperSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [specialty, setSpecialty] = useState("");
 
   const bagpipers = useQuery(api.bagpipers.searchBagpipers, {
     searchTerm: searchTerm || undefined,
     city: city || undefined,
     country: country !== "all" ? country || undefined : undefined,
-    specialty: specialty !== "all" ? specialty || undefined : undefined,
   });
 
   const locations = useQuery(api.bagpipers.getLocations);
-
-  const specialties = [
-    "Weddings", "Funerals", "Corporate Events", "Parades",
-    "Graduations", "Military Ceremonies", "Highland Games", "Burns Night",
-  ];
 
   return (
     <div className="space-y-6">
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-2xl font-heading font-semibold mb-6 text-charcoal">Find Bagpipers</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label>Search by name</Label>
+              <Label>Piper name</Label>
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -66,21 +58,6 @@ export function BagpiperSearch() {
                   <SelectItem value="all">All countries</SelectItem>
                   {locations?.countries.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Specialty</Label>
-              <Select value={specialty} onValueChange={setSpecialty}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All specialties" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All specialties</SelectItem>
-                  {specialties.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

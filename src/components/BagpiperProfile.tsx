@@ -255,7 +255,7 @@ export function BagpiperProfile() {
               </div>
 
               <div className="space-y-1.5">
-                <Label>Travel Radius (miles) *</Label>
+                <Label>Travel Radius (kms) *</Label>
                 <Input
                   type="number"
                   value={formData.travelRadius}
@@ -416,7 +416,7 @@ export function BagpiperProfile() {
                     <h4 className="font-semibold text-charcoal mb-2">Pricing</h4>
                     <p className="text-2xl font-heading font-bold text-primary">${profile?.hourlyRate}/hour</p>
                     <p className="text-sm text-muted-foreground">Minimum: {profile?.minimumBooking} hours</p>
-                    <p className="text-sm text-muted-foreground">Travel radius: {profile?.travelRadius} miles</p>
+                    <p className="text-sm text-muted-foreground">Travel radius: {profile?.travelRadius} kms</p>
                   </div>
                 </div>
 
