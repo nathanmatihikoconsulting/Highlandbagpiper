@@ -8,6 +8,7 @@ import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
@@ -18,12 +19,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <button onClick={() => setCurrentView("search")} className="flex-shrink-0">
-              <img
-                src="/wordmark.png"
-                alt="Highland Bagpiper"
-                className="h-7 w-auto"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
+              <span className="font-heading text-white text-2xl font-semibold tracking-wide">
+                Highland Bagpiper
+              </span>
             </button>
             <nav className="hidden md:flex gap-1">
               <button
@@ -100,11 +98,19 @@ export default function App() {
   );
 }
 
+const eventTypes = [
+  "Weddings", "Funerals", "Corporate Events", "Parades",
+  "Graduations", "Military Ceremonies", "Highland Games", "Burns Night",
+];
+
 function Content({ currentView, setCurrentView }: {
   currentView: "search" | "profile" | "dashboard" | "signin";
   setCurrentView: (view: "search" | "profile" | "dashboard" | "signin") => void;
 }) {
   const loggedInUser = useQuery(api.auth.loggedInUser);
+  const locations = useQuery(api.bagpipers.getLocations);
+  const [heroCity, setHeroCity] = useState("");
+  const [heroEventType, setHeroEventType] = useState("");
 
   useEffect(() => {
     if (loggedInUser && currentView === "signin") {
@@ -142,16 +148,45 @@ function Content({ currentView, setCurrentView }: {
         ) : currentView === "search" ? (
           <div className="space-y-12">
             <div className="flex flex-col md:flex-row items-center gap-8 py-10">
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-5xl font-heading font-bold text-charcoal mb-4 leading-tight">
-                  Find a trusted Highland bagpiper
-                </h1>
-                <p className="text-xl text-gray-600 mb-2">
-                  for ceremonies and events
-                </p>
-                <p className="text-gray-500">
-                  From weddings and funerals to commemorations and civic events.
-                </p>
+              <div className="flex-1 text-center md:text-left space-y-6">
+                <div>
+                  <h1 className="text-5xl font-heading font-bold text-charcoal mb-3 leading-tight">
+                    Find a trusted Highland bagpiper<br className="hidden md:block" /> for ceremonies and events
+                  </h1>
+                  <p className="text-gray-500">
+                    From weddings and funerals to commemorations and civic events.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <Select value={heroCity} onValueChange={setHeroCity}>
+                    <SelectTrigger className="w-44 bg-white">
+                      <SelectValue placeholder="Location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All locations</SelectItem>
+                      {locations?.cities.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={heroEventType} onValueChange={setHeroEventType}>
+                    <SelectTrigger className="w-44 bg-white">
+                      <SelectValue placeholder="Event type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All event types</SelectItem>
+                      {eventTypes.map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    className="bg-primary hover:bg-primary-hover text-white"
+                    onClick={() => document.getElementById("search-section")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    View bagpipers
+                  </Button>
+                </div>
               </div>
               <div className="flex-shrink-0 w-full md:w-80 h-96 rounded-lg overflow-hidden shadow-lg">
                 <img
