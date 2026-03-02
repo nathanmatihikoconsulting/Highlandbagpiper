@@ -9,7 +9,7 @@ import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard">("search");
+  const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -58,7 +58,7 @@ export default function App() {
             </Authenticated>
             <Unauthenticated>
               <button
-                onClick={() => setCurrentView("search")}
+                onClick={() => setCurrentView("signin")}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
                 Sign In
@@ -84,8 +84,8 @@ export default function App() {
 }
 
 function Content({ currentView, setCurrentView }: { 
-  currentView: "search" | "profile" | "dashboard";
-  setCurrentView: (view: "search" | "profile" | "dashboard") => void;
+  currentView: "search" | "profile" | "dashboard" | "signin";
+  setCurrentView: (view: "search" | "profile" | "dashboard" | "signin") => void;
 }) {
   const loggedInUser = useQuery(api.auth.loggedInUser);
 
@@ -100,7 +100,23 @@ function Content({ currentView, setCurrentView }: {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <Unauthenticated>
-        {currentView === "search" ? (
+        {currentView === "signin" ? (
+          <div className="max-w-md mx-auto py-12">
+            <h2 className="text-3xl font-bold text-center mb-2">Welcome Back</h2>
+            <p className="text-gray-600 text-center mb-8">Sign in to book a bagpiper or manage your profile</p>
+            <div className="bg-white rounded-lg shadow-sm p-8">
+              <SignInForm />
+            </div>
+            <p className="text-center mt-4">
+              <button
+                onClick={() => setCurrentView("search")}
+                className="text-green-600 hover:text-green-700 hover:underline font-medium"
+              >
+                ← Back to browsing
+              </button>
+            </p>
+          </div>
+        ) : currentView === "search" ? (
           <div className="space-y-8">
             <div className="text-center py-12">
               <h1 className="text-5xl font-bold text-gray-900 mb-4">
