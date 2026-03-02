@@ -130,9 +130,16 @@ export const searchBagpipers = query({
         .collect();
     }
 
-    // Additional filtering for country
+    // Filter by city if provided
+    if (args.city) {
+      bagpipers = bagpipers.filter(bagpiper =>
+        bagpiper.city.toLowerCase().includes(args.city!.toLowerCase())
+      );
+    }
+
+    // Filter by country if provided
     if (args.country) {
-      bagpipers = bagpipers.filter(bagpiper => 
+      bagpipers = bagpipers.filter(bagpiper =>
         bagpiper.country === args.country
       );
     }
@@ -154,6 +161,21 @@ export const searchBagpipers = query({
           : null,
       }))
     );
+  },
+});
+
+export const getLocations = query({
+  args: {},
+  handler: async (ctx) => {
+    const bagpipers = await ctx.db
+      .query("bagpipers")
+      .withIndex("by_active", (q) => q.eq("isActive", true))
+      .collect();
+
+    const cities = [...new Set(bagpipers.map((b) => b.city).filter(Boolean))].sort();
+    const countries = [...new Set(bagpipers.map((b) => b.country).filter(Boolean))].sort();
+
+    return { cities, countries };
   },
 });
 

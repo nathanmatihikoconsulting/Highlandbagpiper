@@ -16,9 +16,14 @@ export default function App() {
       <header className="sticky top-0 z-10 bg-primary shadow-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <h1 className="text-xl font-heading font-semibold text-white tracking-wide">
-              Highland Bagpiper
-            </h1>
+            <button onClick={() => setCurrentView("search")} className="flex-shrink-0">
+              <img
+                src="/wordmark.png"
+                alt="Highland Bagpiper"
+                className="h-7 w-auto"
+                style={{ filter: "brightness(0) invert(1)" }}
+              />
+            </button>
             <nav className="hidden md:flex gap-1">
               <button
                 onClick={() => setCurrentView("search")}
@@ -28,7 +33,16 @@ export default function App() {
                     : "text-white/80 hover:text-white hover:bg-white/10"
                 }`}
               >
-                Find Bagpipers
+                Find a Piper
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView("search");
+                  setTimeout(() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" }), 100);
+                }}
+                className="px-4 py-2 rounded text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                How it Works
               </button>
               <Authenticated>
                 <button
@@ -76,7 +90,7 @@ export default function App() {
 
       <footer className="bg-charcoal text-white py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-white/70 text-sm">&copy; 2024 Highland Bagpiper. Connecting tradition with celebration.</p>
+          <p className="text-white/70 text-sm">&copy; 2026 Highland Bagpiper. Connecting tradition with celebration.</p>
         </div>
       </footer>
 
@@ -125,19 +139,68 @@ function Content({ currentView, setCurrentView }: {
             </p>
           </div>
         ) : currentView === "search" ? (
-          <div className="space-y-8">
-            <div className="text-center py-12">
-              <h1 className="text-5xl font-heading font-bold text-charcoal mb-4">
-                Find a trusted Highland bagpiper
-              </h1>
-              <p className="text-xl text-gray-600 mb-2">
-                for ceremonies and events
-              </p>
-              <p className="text-gray-500">
-                From weddings and funerals to commemorations and civic events.
-              </p>
+          <div className="space-y-12">
+            <div className="flex flex-col md:flex-row items-center gap-8 py-10">
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-5xl font-heading font-bold text-charcoal mb-4 leading-tight">
+                  Find a trusted Highland bagpiper
+                </h1>
+                <p className="text-xl text-gray-600 mb-2">
+                  for ceremonies and events
+                </p>
+                <p className="text-gray-500">
+                  From weddings and funerals to commemorations and civic events.
+                </p>
+              </div>
+              <div className="flex-shrink-0 w-full md:w-80 h-96 rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="/hero-piper.png"
+                  alt="Professional Highland bagpiper"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
             </div>
-            <BagpiperSearch />
+
+            <div id="search-section">
+              <BagpiperSearch />
+            </div>
+
+            {/* How It Works */}
+            <div id="how-it-works" className="py-4">
+              <h2 className="text-3xl font-heading font-bold text-charcoal text-center mb-10">
+                How It Works
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
+                    1
+                  </div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Browse pipers</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Search by location and event type to find an experienced bagpiper near you.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
+                    2
+                  </div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Send an enquiry</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Share your event details — date, location, and any special requests — directly with the piper.
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
+                    3
+                  </div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Confirm your booking</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Finalise the details directly with the piper. Highland Bagpiper connects you with performers who understand the significance of the occasion.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-white rounded-lg shadow-sm p-8 text-center border border-gray-100">
               <h2 className="text-2xl font-heading font-semibold mb-4 text-charcoal">Ready to book?</h2>
               <p className="text-gray-600 mb-6">Sign in to contact bagpipers and make bookings</p>

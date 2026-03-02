@@ -16,6 +16,8 @@ export function BagpiperSearch() {
     specialty: specialty || undefined,
   });
 
+  const locations = useQuery(api.bagpipers.getLocations);
+
   const specialties = [
     "Weddings",
     "Funerals",
@@ -25,32 +27,6 @@ export function BagpiperSearch() {
     "Military Ceremonies",
     "Highland Games",
     "Burns Night",
-  ];
-
-  const countries = [
-    "New Zealand",
-    "Australia",
-    "England",
-    "Scotland",
-    "Wales",
-    "Ireland",
-    "Canada",
-    "USA",
-    "Argentina",
-    "Belgium",
-    "Brazil",
-    "Chile",
-    "Denmark",
-    "France",
-    "Germany",
-    "Italy",
-    "Japan",
-    "Netherlands",
-    "Norway",
-    "South Africa",
-    "Spain",
-    "Sweden",
-    "Switzerland",
   ];
 
   const inputClass = "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary bg-white text-charcoal";
@@ -84,7 +60,13 @@ export function BagpiperSearch() {
               onChange={(e) => setCity(e.target.value)}
               placeholder="City..."
               className={inputClass}
+              list="city-options"
             />
+            <datalist id="city-options">
+              {locations?.cities.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </div>
 
           <div>
@@ -97,7 +79,7 @@ export function BagpiperSearch() {
               className={inputClass}
             >
               <option value="">All countries</option>
-              {countries.map((c) => (
+              {locations?.countries.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

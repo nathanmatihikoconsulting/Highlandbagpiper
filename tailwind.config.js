@@ -11,7 +11,7 @@ export default {
         "primary-hover": "#162d23",
         teal: "#2F5F6B",
         "teal-hover": "#265059",
-        stone: "#F4F2EE",
+        stone: "#EFEAE7",
         charcoal: "#1E1E1E",
         wine: "#6B2F3A",
         secondary: "#6b7280",
