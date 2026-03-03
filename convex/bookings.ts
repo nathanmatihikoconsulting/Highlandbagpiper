@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 export const createBooking = mutation({
   args: {
@@ -32,7 +33,7 @@ export const createBooking = mutation({
     const totalAmount = subtotal + platformFee;
     const bagpiperAmount = subtotal;
 
-    return await ctx.db.insert("bookings", {
+    const bookingId = await ctx.db.insert("bookings", {
       customerId: userId,
       bagpiperId: args.bagpiperId,
       eventType: args.eventType,
@@ -49,6 +50,39 @@ export const createBooking = mutation({
       customerEmail: args.customerEmail,
       customerPhone: args.customerPhone,
     });
+
+    // Look up piper's email from their auth user record
+    const piperUser = await ctx.db.get(bagpiper.userId);
+    const piperEmail = (piperUser as any)?.email as string | undefined;
+
+    // Email the piper about the new enquiry (only if email is available)
+    if (piperEmail) {
+      await ctx.scheduler.runAfter(0, internal.email.bookingEnquiryToPiper, {
+        piperEmail,
+        piperName: bagpiper.name,
+        customerName: args.customerName,
+        customerEmail: args.customerEmail,
+        customerPhone: args.customerPhone,
+        eventType: args.eventType,
+        eventDate: args.eventDate,
+        eventTime: args.eventTime,
+        location: args.location,
+        specialRequests: args.specialRequests,
+      });
+    }
+
+    // Email the customer a confirmation
+    await ctx.scheduler.runAfter(0, internal.email.bookingConfirmationToCustomer, {
+      customerEmail: args.customerEmail,
+      customerName: args.customerName,
+      piperName: bagpiper.name,
+      eventType: args.eventType,
+      eventDate: args.eventDate,
+      eventTime: args.eventTime,
+      location: args.location,
+    });
+
+    return bookingId;
   },
 });
 
@@ -85,7 +119,6 @@ export const getBagpiperBookings = query({
       return [];
     }
 
-    // Get bagpiper profile
     const bagpiper = await ctx.db
       .query("bagpipers")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -106,11 +139,16 @@ export const updateBookingStatus = mutation({
   args: {
     bookingId: v.id("bookings"),
     status: v.union(
+      v.literal("enquiry"),
+      v.literal("quoted"),
+      v.literal("accepted"),
+      v.literal("deposit_paid"),
       v.literal("pending"),
       v.literal("confirmed"),
       v.literal("paid"),
       v.literal("completed"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
+      v.literal("disputed")
     ),
   },
   handler: async (ctx, args) => {
@@ -124,7 +162,7 @@ export const updateBookingStatus = mutation({
       throw new Error("Booking not found");
     }
 
-    // Check if user is the bagpiper for this booking
+    // Only the piper for this booking can update status
     const bagpiper = await ctx.db.get(booking.bagpiperId);
     if (!bagpiper || bagpiper.userId !== userId) {
       throw new Error("Not authorized to update this booking");
@@ -132,6 +170,17 @@ export const updateBookingStatus = mutation({
 
     await ctx.db.patch(args.bookingId, {
       status: args.status,
+      updatedAt: Date.now(),
+    });
+
+    // Email the customer about the status change
+    await ctx.scheduler.runAfter(0, internal.email.statusUpdateToCustomer, {
+      customerEmail: booking.customerEmail,
+      customerName: booking.customerName,
+      piperName: bagpiper.name,
+      eventType: booking.eventType,
+      eventDate: booking.eventDate,
+      newStatus: args.status,
     });
   },
 });
