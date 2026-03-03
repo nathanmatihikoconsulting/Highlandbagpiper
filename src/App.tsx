@@ -9,6 +9,25 @@ import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
 import { Button } from "@/components/ui/button";
 
+function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+  const unread = useQuery(api.messages.getUnreadCount) ?? 0;
+  return (
+    <button
+      onClick={onClick}
+      className={`relative px-4 py-2 rounded text-sm font-medium transition-colors ${
+        active ? "bg-white/20 text-white" : "text-white/80 hover:text-white hover:bg-white/10"
+      }`}
+    >
+      Dashboard
+      {unread > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center leading-none">
+          {unread > 9 ? "9+" : unread}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export default function App() {
   const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
 
@@ -53,16 +72,10 @@ export default function App() {
                 >
                   My Profile
                 </button>
-                <button
+                <DashboardNavButton
+                  active={currentView === "dashboard"}
                   onClick={() => setCurrentView("dashboard")}
-                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                    currentView === "dashboard"
-                      ? "bg-white/20 text-white"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  Dashboard
-                </button>
+                />
               </Authenticated>
             </nav>
           </div>
