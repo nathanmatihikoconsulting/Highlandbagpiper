@@ -29,6 +29,7 @@ export function BagpiperProfile() {
     country: string;
     zipCode: string;
     phone: string;
+    email: string;
     hourlyRate: number;
     minimumBooking: number;
     travelRadius: number;
@@ -42,6 +43,7 @@ export function BagpiperProfile() {
     country: "",
     zipCode: "",
     phone: "",
+    email: "",
     hourlyRate: 150,
     minimumBooking: 2,
     travelRadius: 50,
@@ -61,6 +63,7 @@ export function BagpiperProfile() {
         country: profile.country,
         zipCode: profile.zipCode,
         phone: profile.phone,
+        email: profile.email ?? "",
         hourlyRate: profile.hourlyRate,
         minimumBooking: profile.minimumBooking,
         travelRadius: profile.travelRadius,
@@ -193,6 +196,19 @@ export function BagpiperProfile() {
                 <div className="space-y-1.5">
                   <Label>Phone *</Label>
                   <Input type="tel" value={formData.phone} onChange={set("phone")} required />
+                </div>
+                <div className="space-y-1.5 md:col-span-2">
+                  <Label>Booking contact email *</Label>
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={set("email")}
+                    required
+                    placeholder="email address for booking notifications"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    You will be emailed at this address when you receive a new enquiry.
+                  </p>
                 </div>
               </div>
 
@@ -410,6 +426,9 @@ export function BagpiperProfile() {
                   <div>
                     <h4 className="font-semibold text-charcoal mb-2">Contact</h4>
                     <p className="text-sm text-muted-foreground">{profile?.phone}</p>
+                    {profile?.email && (
+                      <p className="text-sm text-muted-foreground">{profile.email}</p>
+                    )}
                     <p className="text-sm text-muted-foreground">{profile?.location}</p>
                   </div>
                   <div>

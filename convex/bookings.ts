@@ -51,9 +51,12 @@ export const createBooking = mutation({
       customerPhone: args.customerPhone,
     });
 
-    // Look up piper's email from their auth user record
-    const piperUser = await ctx.db.get(bagpiper.userId);
-    const piperEmail = (piperUser as any)?.email as string | undefined;
+    // Prefer the piper's explicit contact email; fall back to their auth account email
+    let piperEmail: string | undefined = bagpiper.email;
+    if (!piperEmail) {
+      const piperUser = await ctx.db.get(bagpiper.userId);
+      piperEmail = (piperUser as any)?.email as string | undefined;
+    }
 
     // Email the piper about the new enquiry (only if email is available)
     if (piperEmail) {

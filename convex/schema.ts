@@ -12,6 +12,7 @@ const applicationTables = {
     country: v.string(),
     zipCode: v.string(),
     phone: v.string(),
+    email: v.optional(v.string()), // contact email for booking notifications
     hourlyRate: v.number(),
     minimumBooking: v.number(), // in hours
     travelRadius: v.number(), // in kms
