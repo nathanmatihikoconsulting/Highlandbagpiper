@@ -132,10 +132,7 @@ function BagpiperDetailsModal({
         )}
 
         <div className="space-y-4">
-          <div>
-            <h3 className="font-semibold text-charcoal mb-1">Location</h3>
-            <p className="text-muted-foreground text-sm">{bagpiper.location} · Travel radius: {bagpiper.travelRadius} miles</p>
-          </div>
+          <p className="text-muted-foreground text-sm">{bagpiper.city}, {bagpiper.country}</p>
 
           {bagpiper.averageRating && (
             <div>

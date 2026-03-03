@@ -230,7 +230,31 @@ function Content({ currentView, setCurrentView }: {
       </Unauthenticated>
 
       <Authenticated>
-        {currentView === "search" && <BagpiperSearch />}
+        {currentView === "search" && (
+          <>
+            <BagpiperSearch />
+            <div id="how-it-works" className="py-4 mt-12">
+              <h2 className="text-3xl font-heading font-bold text-charcoal text-center mb-10">How It Works</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">1</div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Browse pipers</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Search by location and event type to find an experienced bagpiper near you.</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">2</div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Send an enquiry</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Share your event details — date, location, and any special requests — directly with the piper.</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">3</div>
+                  <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Confirm your booking</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Finalise the details directly with the piper. Highland Bagpiper connects you with performers who understand the significance of the occasion.</p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
         {currentView === "profile" && <BagpiperProfile />}
         {currentView === "dashboard" && <Dashboard />}
       </Authenticated>
