@@ -25,6 +25,7 @@ interface BagpiperCardProps {
     averageRating?: number;
     totalReviews: number;
   };
+  onSignInRequired?: () => void;
 }
 
 function renderStars(rating: number) {
@@ -33,9 +34,17 @@ function renderStars(rating: number) {
   ));
 }
 
-export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
+export function BagpiperCard({ bagpiper, onSignInRequired }: BagpiperCardProps) {
   const [showBooking, setShowBooking] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+
+  const handleBookNow = () => {
+    if (onSignInRequired) {
+      onSignInRequired();
+    } else {
+      setShowBooking(true);
+    }
+  };
 
   return (
     <>
@@ -81,7 +90,7 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
             <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/5" onClick={() => setShowDetails(true)}>
               View Details
             </Button>
-            <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={() => setShowBooking(true)}>
+            <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={handleBookNow}>
               Book Now
             </Button>
           </div>
@@ -94,7 +103,7 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
         bagpiper={bagpiper}
         open={showDetails}
         onClose={() => setShowDetails(false)}
-        onBook={() => { setShowDetails(false); setShowBooking(true); }}
+        onBook={() => { setShowDetails(false); handleBookNow(); }}
       />
     </>
   );

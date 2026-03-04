@@ -31,6 +31,7 @@ export function BagpiperProfile() {
     zipCode: string;
     phone: string;
     email: string;
+    currency: string;
     hourlyRate: number;
     minimumBooking: number;
     travelRadius: number;
@@ -45,6 +46,7 @@ export function BagpiperProfile() {
     zipCode: "",
     phone: "",
     email: "",
+    currency: "NZD",
     hourlyRate: 150,
     minimumBooking: 2,
     travelRadius: 50,
@@ -66,6 +68,7 @@ export function BagpiperProfile() {
         zipCode: profile.zipCode,
         phone: profile.phone,
         email: profile.email ?? "",
+        currency: (profile as any).currency ?? "NZD",
         hourlyRate: profile.hourlyRate,
         minimumBooking: profile.minimumBooking,
         travelRadius: profile.travelRadius,
@@ -209,7 +212,7 @@ export function BagpiperProfile() {
                   <Label>Phone *</Label>
                   <Input type="tel" value={formData.phone} onChange={set("phone")} required />
                 </div>
-                <div className="space-y-1.5 md:col-span-2">
+                <div className="space-y-1.5">
                   <Label>Booking contact email *</Label>
                   <Input
                     type="email"
@@ -221,6 +224,20 @@ export function BagpiperProfile() {
                   <p className="text-xs text-muted-foreground">
                     You will be emailed at this address when you receive a new enquiry.
                   </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Preferred Currency *</Label>
+                  <Select value={formData.currency} onValueChange={(v) => setFormData((p) => ({ ...p, currency: v }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["NZD", "AUD", "USD", "GBP", "EUR"].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Currency used in your quotes.</p>
                 </div>
               </div>
 

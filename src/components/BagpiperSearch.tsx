@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function BagpiperSearch() {
+export function BagpiperSearch({ onSignInRequired }: { onSignInRequired?: () => void } = {}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
@@ -84,7 +84,7 @@ export function BagpiperSearch() {
             No bagpipers found matching your criteria.
           </div>
         ) : (
-          bagpipers.map((bagpiper) => <BagpiperCard key={bagpiper._id} bagpiper={bagpiper} />)
+          bagpipers.map((bagpiper) => <BagpiperCard key={bagpiper._id} bagpiper={bagpiper} onSignInRequired={onSignInRequired} />)
         )}
       </div>
     </div>

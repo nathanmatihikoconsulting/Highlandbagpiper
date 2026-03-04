@@ -195,9 +195,10 @@ function QuoteForm({
       </div>
 
       {total > 0 && (
-        <p className="text-sm font-semibold text-primary">
-          Total: {form.currency} {total.toFixed(2)}
-        </p>
+        <div className="text-sm space-y-0.5">
+          <p className="text-muted-foreground">Your total: {form.currency} {total.toFixed(2)}</p>
+          <p className="font-semibold text-primary">Customer pays (incl. 5% platform fee): {form.currency} {(total * 1.05).toFixed(2)}</p>
+        </div>
       )}
 
       <div className="flex gap-2">
@@ -231,31 +232,45 @@ function QuoteCard({ booking }: { booking: any }) {
     }
   };
 
+  const platformFee = q.totalFee * 0.05;
+  const customerTotal = q.totalFee + platformFee;
+
   return (
     <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
       <h4 className="font-semibold text-charcoal text-sm mb-3">Quote from {booking.bagpiper?.name}</h4>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
-        <div>
-          <p className="text-muted-foreground text-xs">Performance Fee</p>
-          <p className="font-medium">{q.currency} {q.performanceFee.toFixed(2)}</p>
+
+      {/* Fee breakdown */}
+      <div className="text-sm space-y-1 mb-3">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Performance Fee</span>
+          <span>{q.currency} {q.performanceFee.toFixed(2)}</span>
         </div>
         {q.travelFee > 0 && (
-          <div>
-            <p className="text-muted-foreground text-xs">Travel Fee</p>
-            <p className="font-medium">{q.currency} {q.travelFee.toFixed(2)}</p>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Travel Fee</span>
+            <span>{q.currency} {q.travelFee.toFixed(2)}</span>
           </div>
         )}
         {q.accommodationFee > 0 && (
-          <div>
-            <p className="text-muted-foreground text-xs">Accommodation</p>
-            <p className="font-medium">{q.currency} {q.accommodationFee.toFixed(2)}</p>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Accommodation</span>
+            <span>{q.currency} {q.accommodationFee.toFixed(2)}</span>
           </div>
         )}
-        <div>
-          <p className="text-muted-foreground text-xs">Total</p>
-          <p className="text-lg font-bold text-primary">{q.currency} {q.totalFee.toFixed(2)}</p>
+        <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span>{q.currency} {q.totalFee.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-muted-foreground text-xs">
+          <span>Platform fee (5%)</span>
+          <span>{q.currency} {platformFee.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between border-t border-blue-300 pt-1 mt-1 font-bold">
+          <span>Total to pay</span>
+          <span className="text-primary text-base">{q.currency} {customerTotal.toFixed(2)}</span>
         </div>
       </div>
+
       {q.notes && (
         <p className="text-sm text-gray-600 mb-3 italic">"{q.notes}"</p>
       )}
@@ -546,7 +561,7 @@ export function Dashboard() {
                                 Confirm Booking
                               </Button>
                             )}
-                            {booking.status === "paid" && (
+                            {(booking.status === "paid" || booking.status === "confirmed") && (
                               <Button size="sm" variant="secondary" onClick={() => handleStatusUpdate(booking._id, "completed")}>
                                 Mark Complete
                               </Button>

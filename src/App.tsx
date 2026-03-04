@@ -165,7 +165,7 @@ function Content({ currentView, setCurrentView }: {
                 </p>
               </div>
 
-              <BagpiperSearch />
+              <BagpiperSearch onSignInRequired={() => setCurrentView("signin")} />
             </div>
 
             {/* Right column — Piper Kevin, blending into background */}

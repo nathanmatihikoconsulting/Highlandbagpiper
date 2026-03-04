@@ -20,6 +20,7 @@ const applicationTables = {
     youtubeVideos: v.array(v.string()), // YouTube video IDs
     specialties: v.array(v.string()), // weddings, funerals, etc.
     isActive: v.boolean(),
+    currency: v.optional(v.string()), // preferred payment currency e.g. "NZD"
     stripeAccountId: v.optional(v.string()),
     averageRating: v.optional(v.number()),
     totalReviews: v.number(),
