@@ -205,6 +205,94 @@ export const updateBookingStatus = mutation({
   },
 });
 
+/** Piper submits a quote for a booking. Sets status → "quoted". */
+export const submitQuote = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    performanceFee: v.number(),
+    travelFee: v.optional(v.number()),
+    accommodationFee: v.optional(v.number()),
+    currency: v.string(),
+    notes: v.optional(v.string()),
+    validUntil: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Must be logged in");
+
+    const booking = await ctx.db.get(args.bookingId);
+    if (!booking) throw new Error("Booking not found");
+
+    const bagpiper = await ctx.db.get(booking.bagpiperId);
+    if (!bagpiper || bagpiper.userId !== userId)
+      throw new Error("Not authorised to quote this booking");
+
+    const totalFee =
+      args.performanceFee +
+      (args.travelFee ?? 0) +
+      (args.accommodationFee ?? 0);
+
+    await ctx.db.patch(args.bookingId, {
+      status: "quoted",
+      updatedAt: Date.now(),
+      quote: {
+        performanceFee: args.performanceFee,
+        travelFee: args.travelFee,
+        accommodationFee: args.accommodationFee,
+        totalFee,
+        currency: args.currency,
+        notes: args.notes,
+        validUntil: args.validUntil,
+      },
+    });
+
+    // Notify the customer
+    await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+      userId: booking.customerId,
+      type: "quote_received",
+      title: "Quote received",
+      message: `${bagpiper.name} has sent a quote of ${args.currency} ${totalFee.toFixed(2)} for your ${booking.eventType}.`,
+    });
+  },
+});
+
+/** Customer accepts or declines a quote. */
+export const respondToQuote = mutation({
+  args: {
+    bookingId: v.id("bookings"),
+    accept: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Must be logged in");
+
+    const booking = await ctx.db.get(args.bookingId);
+    if (!booking) throw new Error("Booking not found");
+    if (booking.customerId !== userId)
+      throw new Error("Not authorised to respond to this quote");
+    if (booking.status !== "quoted")
+      throw new Error("No active quote to respond to");
+
+    const newStatus = args.accept ? "accepted" : "cancelled";
+    await ctx.db.patch(args.bookingId, {
+      status: newStatus,
+      updatedAt: Date.now(),
+    });
+
+    const bagpiper = await ctx.db.get(booking.bagpiperId);
+    if (bagpiper) {
+      await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+        userId: bagpiper.userId,
+        type: "booking_update",
+        title: args.accept ? "Quote accepted" : "Quote declined",
+        message: args.accept
+          ? `${booking.customerName} has accepted your quote for the ${booking.eventType} on ${booking.eventDate}.`
+          : `${booking.customerName} has declined your quote for the ${booking.eventType} on ${booking.eventDate}.`,
+      });
+    }
+  },
+});
+
 export const getBookingById = query({
   args: { bookingId: v.id("bookings") },
   handler: async (ctx, args) => {
