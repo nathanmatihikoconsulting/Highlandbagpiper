@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
+import { PhotoCropModal } from "./PhotoCropModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ export function BagpiperProfile() {
   });
 
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile && !isEditing) {
@@ -111,24 +113,34 @@ export function BagpiperProfile() {
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  /** Step 1: file chosen → show crop modal */
+  const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !profile) return;
+    if (!file) return;
+    // Reset input so same file can be re-selected if cancelled
+    event.target.value = "";
+    const reader = new FileReader();
+    reader.onload = () => setCropImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  /** Step 2: user confirms crop → upload the cropped blob */
+  const handleCropConfirm = async (blob: Blob) => {
+    setCropImageSrc(null);
+    if (!profile) return;
     try {
       const postUrl = await generateUploadUrl();
       const result = await fetch(postUrl, {
         method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
+        headers: { "Content-Type": "image/jpeg" },
+        body: blob,
       });
       const json = await result.json();
       if (!result.ok) throw new Error(`Upload failed: ${JSON.stringify(json)}`);
-      const { storageId } = json;
-      await updateProfileImage({ bagpiperId: profile._id, storageId });
-      toast.success("Profile image updated!");
-    } catch (error) {
-      toast.error("Failed to upload image");
-      console.error(error);
+      await updateProfileImage({ bagpiperId: profile._id, storageId: json.storageId });
+      toast.success("Profile photo updated!");
+    } catch {
+      toast.error("Failed to upload photo");
     }
   };
 
@@ -344,6 +356,14 @@ export function BagpiperProfile() {
   }
 
   return (
+    <>
+    {cropImageSrc && (
+      <PhotoCropModal
+        imageSrc={cropImageSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={() => setCropImageSrc(null)}
+      />
+    )}
     <div className="max-w-4xl mx-auto">
       <Card className="overflow-hidden">
         <Tabs defaultValue="profile">
@@ -398,7 +418,7 @@ export function BagpiperProfile() {
                     ref={imageInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleImageUpload}
+                    onChange={handleImageFileChange}
                     className="hidden"
                   />
                   <h3 className="font-heading text-xl font-semibold text-charcoal mt-4">{profile?.name}</h3>
@@ -476,5 +496,6 @@ export function BagpiperProfile() {
         </Tabs>
       </Card>
     </div>
+    </>
   );
 }
