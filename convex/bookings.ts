@@ -85,6 +85,14 @@ export const createBooking = mutation({
       location: args.location,
     });
 
+    // In-app notification to the piper
+    await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+      userId: bagpiper.userId,
+      type: "new_booking",
+      title: "New booking enquiry",
+      message: `${args.customerName} has sent an enquiry for a ${args.eventType} on ${args.eventDate}.`,
+    });
+
     return bookingId;
   },
 });
@@ -184,6 +192,15 @@ export const updateBookingStatus = mutation({
       eventType: booking.eventType,
       eventDate: booking.eventDate,
       newStatus: args.status,
+    });
+
+    // In-app notification to the customer
+    const statusLabel = args.status.replace(/_/g, " ");
+    await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+      userId: booking.customerId,
+      type: "booking_update",
+      title: "Booking status updated",
+      message: `Your ${booking.eventType} booking with ${bagpiper.name} is now ${statusLabel}.`,
     });
   },
 });

@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 /** Verify the current user is either the customer or the piper for a booking. */
 async function assertBookingParticipant(ctx: any, bookingId: any) {
@@ -32,12 +33,30 @@ export const sendMessage = mutation({
     const trimmed = args.content.trim();
     if (!trimmed) throw new Error("Message cannot be empty");
 
-    return await ctx.db.insert("messages", {
+    const messageId = await ctx.db.insert("messages", {
       bookingId: args.bookingId,
       senderId: userId,
       content: trimmed,
       createdAt: Date.now(),
     });
+
+    // Notify the other participant
+    const { booking, bagpiper } = await assertBookingParticipant(ctx, args.bookingId);
+    const recipientId =
+      userId === booking.customerId ? bagpiper?.userId : booking.customerId;
+    if (recipientId) {
+      const senderUser = await ctx.db.get(userId);
+      const senderName =
+        (senderUser as any)?.name ?? (senderUser as any)?.email ?? "Someone";
+      await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+        userId: recipientId,
+        type: "new_message",
+        title: "New message",
+        message: `${senderName}: ${trimmed.length > 60 ? trimmed.slice(0, 60) + "…" : trimmed}`,
+      });
+    }
+
+    return messageId;
   },
 });
 

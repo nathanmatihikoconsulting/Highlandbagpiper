@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
+import { NotificationBell } from "./components/NotificationBell";
 import { Button } from "@/components/ui/button";
 
 function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () => void }) {
@@ -81,6 +82,7 @@ export default function App() {
           </div>
           <div className="flex items-center gap-4">
             <Authenticated>
+              <NotificationBell />
               <SignOutButton />
             </Authenticated>
             <Unauthenticated>
