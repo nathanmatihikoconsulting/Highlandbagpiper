@@ -284,6 +284,105 @@ function QuoteCard({ booking }: { booking: any }) {
   );
 }
 
+/** Interactive 1-5 star selector. */
+function StarSelector({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hover, setHover] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
+          onClick={() => onChange(star)}
+          className={`text-2xl leading-none transition-colors ${star <= (hover || value) ? "text-yellow-500" : "text-gray-300"}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Review form + submitted state for a completed customer booking. */
+function ReviewSection({ bookingId, piperName }: { bookingId: Id<"bookings">; piperName: string }) {
+  const existingReview = useQuery(api.reviews.getBookingReview, { bookingId });
+  const createReview = useMutation(api.reviews.createReview);
+  const [open, setOpen] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [title, setTitle] = useState("");
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  if (existingReview === undefined) return null;
+
+  if (existingReview) {
+    return (
+      <div className="mt-3 flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <span className="text-base">✓</span>
+        <span>You reviewed {piperName} — {existingReview.rating}★</span>
+        {existingReview.title && <span className="text-muted-foreground">· "{existingReview.title}"</span>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3">
+      {!open ? (
+        <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+          Leave a Review
+        </Button>
+      ) : (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!comment.trim()) { toast.error("Please write a comment"); return; }
+            setSaving(true);
+            try {
+              await createReview({ bookingId, rating, title: title.trim() || undefined, comment: comment.trim() });
+              toast.success("Review submitted — thank you!");
+              setOpen(false);
+            } catch {
+              toast.error("Failed to submit review");
+            } finally {
+              setSaving(false);
+            }
+          }}
+          className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3"
+        >
+          <h4 className="font-semibold text-charcoal text-sm">Review {piperName}</h4>
+          <div className="space-y-1">
+            <Label className="text-xs">Rating</Label>
+            <StarSelector value={rating} onChange={setRating} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Title (optional)</Label>
+            <Input placeholder="Summarise your experience" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-white" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Your Review *</Label>
+            <Textarea
+              placeholder="Tell others about your experience with this piper…"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={3}
+              required
+              className="bg-white text-sm"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" size="sm" className="bg-primary hover:bg-primary-hover text-white" disabled={saving}>
+              {saving ? "Submitting…" : "Submit Review"}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
 export function Dashboard() {
   const myBookings = useQuery(api.bookings.getMyBookings);
   const bagpiperBookings = useQuery(api.bookings.getBagpiperBookings);
@@ -376,6 +475,11 @@ export function Dashboard() {
 
                     {/* Quote card — shown when piper has sent a quote */}
                     {booking.status === "quoted" && <QuoteCard booking={booking} />}
+
+                    {/* Review section — shown for completed bookings */}
+                    {booking.status === "completed" && (
+                      <ReviewSection bookingId={booking._id} piperName={booking.bagpiper?.name ?? "the piper"} />
+                    )}
 
                     {/* Messages toggle */}
                     <div className="mt-4">

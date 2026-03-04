@@ -109,6 +109,7 @@ function BagpiperDetailsModal({
   onBook: () => void;
 }) {
   const files = useQuery(api.files.getBagpiperFiles, { bagpiperId: bagpiper._id, publicOnly: true });
+  const reviews = useQuery(api.reviews.getBagpiperReviews, { bagpiperId: bagpiper._id });
 
   const getFileIcon = (fileType: string) => {
     switch (fileType) {
@@ -192,6 +193,37 @@ function BagpiperDetailsModal({
                       <Button variant="outline" size="sm" asChild>
                         <a href={file.url} target="_blank" rel="noopener noreferrer">View</a>
                       </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {reviews && reviews.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-charcoal mb-3">
+                Reviews ({reviews.length})
+              </h3>
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review._id} className="border-b border-gray-100 pb-4 last:border-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex">{renderStars(review.rating)}</div>
+                      {review.title && (
+                        <span className="font-medium text-sm text-charcoal">{review.title}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {review.customerName}
+                      {review.createdAt ? ` · ${new Date(review.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}` : ""}
+                    </p>
+                    <p className="text-sm text-gray-700">{review.comment}</p>
+                    {review.response && (
+                      <div className="mt-2 ml-3 pl-3 border-l-2 border-primary/30">
+                        <p className="text-xs font-medium text-primary mb-0.5">Response from the piper</p>
+                        <p className="text-sm text-gray-600 italic">{review.response}</p>
+                      </div>
                     )}
                   </div>
                 ))}
