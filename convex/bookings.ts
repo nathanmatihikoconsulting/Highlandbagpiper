@@ -15,6 +15,16 @@ export const createBooking = mutation({
     customerName: v.string(),
     customerEmail: v.string(),
     customerPhone: v.string(),
+    // Rich venue details
+    venueName: v.optional(v.string()),
+    guestCount: v.optional(v.number()),
+    indoorOutdoor: v.optional(v.string()),
+    // Music preferences
+    tuneRequests: v.optional(v.string()),
+    musicGenre: v.optional(v.string()),
+    musicNotes: v.optional(v.string()),
+    // Dress
+    dressPreference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -33,6 +43,10 @@ export const createBooking = mutation({
     const totalAmount = subtotal + platformFee;
     const bagpiperAmount = subtotal;
 
+    const tunes = args.tuneRequests
+      ? args.tuneRequests.split(/[\n,]+/).map((t) => t.trim()).filter(Boolean)
+      : undefined;
+
     const bookingId = await ctx.db.insert("bookings", {
       customerId: userId,
       bagpiperId: args.bagpiperId,
@@ -49,6 +63,23 @@ export const createBooking = mutation({
       customerName: args.customerName,
       customerEmail: args.customerEmail,
       customerPhone: args.customerPhone,
+      eventDetails: {
+        type: args.eventType,
+        date: args.eventDate,
+        time: args.eventTime,
+        venue: {
+          name: args.venueName,
+          address: args.location,
+          indoorOutdoor: args.indoorOutdoor,
+        },
+        guestCount: args.guestCount,
+      },
+      musicPreferences: (tunes || args.musicGenre || args.musicNotes) ? {
+        tunes,
+        genre: args.musicGenre,
+        notes: args.musicNotes,
+      } : undefined,
+      dressPreference: args.dressPreference,
     });
 
     // Prefer the piper's explicit contact email; fall back to their auth account email
