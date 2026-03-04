@@ -8,6 +8,7 @@ import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
 import { NotificationBell } from "./components/NotificationBell";
+import { RoleSelectionScreen } from "./components/RoleSelectionScreen";
 import { Button } from "@/components/ui/button";
 
 function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () => void }) {
@@ -26,6 +27,36 @@ function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () 
         </span>
       )}
     </button>
+  );
+}
+
+function AuthenticatedNavItems({
+  currentView,
+  setCurrentView,
+}: {
+  currentView: string;
+  setCurrentView: (v: "search" | "profile" | "dashboard" | "signin") => void;
+}) {
+  const role = useQuery(api.userProfiles.getMyRole);
+  return (
+    <>
+      {role !== "hirer" && (
+        <button
+          onClick={() => setCurrentView("profile")}
+          className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+            currentView === "profile"
+              ? "bg-white/20 text-white"
+              : "text-white/80 hover:text-white hover:bg-white/10"
+          }`}
+        >
+          My Profile
+        </button>
+      )}
+      <DashboardNavButton
+        active={currentView === "dashboard"}
+        onClick={() => setCurrentView("dashboard")}
+      />
+    </>
   );
 }
 
@@ -63,20 +94,7 @@ export default function App() {
                 How it Works
               </button>
               <Authenticated>
-                <button
-                  onClick={() => setCurrentView("profile")}
-                  className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                    currentView === "profile"
-                      ? "bg-white/20 text-white"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  My Profile
-                </button>
-                <DashboardNavButton
-                  active={currentView === "dashboard"}
-                  onClick={() => setCurrentView("dashboard")}
-                />
+                <AuthenticatedNavItems currentView={currentView} setCurrentView={setCurrentView} />
               </Authenticated>
             </nav>
           </div>
@@ -117,6 +135,7 @@ function Content({ currentView, setCurrentView }: {
   setCurrentView: (view: "search" | "profile" | "dashboard" | "signin") => void;
 }) {
   const loggedInUser = useQuery(api.auth.loggedInUser);
+  const role = useQuery(api.userProfiles.getMyRole);
 
   useEffect(() => {
     if (loggedInUser && currentView === "signin") {
@@ -232,7 +251,13 @@ function Content({ currentView, setCurrentView }: {
       </Unauthenticated>
 
       <Authenticated>
-        {currentView === "search" && (
+        {role === undefined && (
+          <div className="flex justify-center items-center min-h-96">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        )}
+        {role === null && <RoleSelectionScreen />}
+        {role !== null && currentView === "search" && (
           <>
             <BagpiperSearch />
             <div id="how-it-works" className="py-4 mt-12">
@@ -257,8 +282,8 @@ function Content({ currentView, setCurrentView }: {
             </div>
           </>
         )}
-        {currentView === "profile" && <BagpiperProfile />}
-        {currentView === "dashboard" && <Dashboard />}
+        {role !== null && currentView === "profile" && <BagpiperProfile />}
+        {role !== null && currentView === "dashboard" && <Dashboard />}
       </Authenticated>
     </div>
   );

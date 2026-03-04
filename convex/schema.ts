@@ -164,6 +164,11 @@ const applicationTables = {
     .index("by_bookingId", ["bookingId"])
     .index("by_senderId", ["senderId"]),
 
+  userProfiles: defineTable({
+    userId: v.id("users"),
+    role: v.union(v.literal("piper"), v.literal("hirer")),
+  }).index("by_user", ["userId"]),
+
   // Note: by_userId_unread is implemented in query handlers by filtering readAt === undefined
   notifications: defineTable({
     userId: v.id("users"),
