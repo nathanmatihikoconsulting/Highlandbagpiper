@@ -42,7 +42,7 @@ export function BagpiperCard({ bagpiper }: BagpiperCardProps) {
       <Card className="overflow-hidden hover:shadow-md transition-shadow">
         <div className="bg-gray-100">
           {bagpiper.profileImageUrl ? (
-            <img src={bagpiper.profileImageUrl} alt={bagpiper.name} className="w-full h-64 object-cover" />
+            <img src={bagpiper.profileImageUrl} alt={bagpiper.name} className="w-full h-64 object-cover object-top" />
           ) : (
             <div className="w-full h-64 bg-gradient-to-br from-primary/10 to-teal/10 flex items-center justify-center">
               <span className="text-4xl opacity-30">♪</span>
