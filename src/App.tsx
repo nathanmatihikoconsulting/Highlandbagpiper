@@ -81,12 +81,15 @@ export default function App() {
       <header className="sticky top-0 z-10 bg-primary shadow-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <button onClick={() => navigate("/")} className="flex-shrink-0">
+            <button onClick={() => navigate("/")} className="flex-shrink-0 flex items-center gap-3">
               <img
                 src="/logo.png"
-                alt="Highland Bagpiper"
+                alt="Highland Bagpiper logo"
                 className="h-12 w-auto"
               />
+              <span className="font-heading text-white text-2xl font-semibold tracking-wide">
+                Highland Bagpiper
+              </span>
             </button>
             <nav className="hidden md:flex gap-1">
               <button
