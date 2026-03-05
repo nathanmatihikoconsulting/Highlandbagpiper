@@ -82,9 +82,11 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <button onClick={() => navigate("/")} className="flex-shrink-0">
-              <span className="font-heading text-white text-2xl font-semibold tracking-wide">
-                Highland Bagpiper
-              </span>
+              <img
+                src="/logo.png"
+                alt="Highland Bagpiper"
+                className="h-12 w-auto"
+              />
             </button>
             <nav className="hidden md:flex gap-1">
               <button
