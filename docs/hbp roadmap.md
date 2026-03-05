@@ -37,12 +37,12 @@ The biggest gap right now is that customers and pipers cannot communicate after 
 **Effort:** Small — 1–2 days
 **Why now:** Pipers currently have no way to know a booking arrived. Customers don't get confirmation either.
 
-- [ ] Install and configure Resend (`npm install resend`)
-- [ ] Create Convex action `sendEmail` wrapping Resend API
-- [ ] Email piper on new booking enquiry (to-do: add `email` field to piper profile)
-- [ ] Email customer confirmation on enquiry submission
-- [ ] Email customer when piper updates booking status
-- [ ] Use `nathanmatihikoconsulting@gmail.com` as admin BCC on all bookings
+- [x ] Install and configure Resend (`npm install resend`)
+- [x ] Create Convex action `sendEmail` wrapping Resend API
+- [x ] Email piper on new booking enquiry (to-do: add `email` field to piper profile)
+- [x ] Email customer confirmation on enquiry submission
+- [x ] Email customer when piper updates booking status
+- [x ] Use `nathanmatihikoconsulting@gmail.com` as admin BCC on all bookings
 
 > **Note:** The piper's email currently comes from their Convex Auth user record, not the bagpipers table. Need to look up `users` table by `userId` to get email.
 
@@ -50,19 +50,19 @@ The biggest gap right now is that customers and pipers cannot communicate after 
 **Effort:** Medium — 3–5 days
 **Why now:** The schema is already built (`messages` table). Customers and pipers need to discuss event details, tunes, dress, and logistics.
 
-- [ ] Convex functions: `sendMessage`, `getMessages` (by bookingId), `markMessageRead`
-- [ ] Messaging UI inside Dashboard — thread view per booking
-- [ ] Unread message badge on Dashboard nav tab
-- [ ] Real-time updates (Convex queries are reactive — works automatically)
+- [x ] Convex functions: `sendMessage`, `getMessages` (by bookingId), `markMessageRead`
+- [x ] Messaging UI inside Dashboard — thread view per booking
+- [x ] Unread message badge on Dashboard nav tab
+- [x ] Real-time updates (Convex queries are reactive — works automatically)
 
 #### 2.3 In-App Notifications
 **Effort:** Small — 1–2 days
 **Why now:** Schema already exists (`notifications` table). Creates a notification feed in the nav.
 
-- [ ] Convex functions: `createNotification` (internal), `getMyNotifications`, `markNotificationRead`
-- [ ] Call `createNotification` from booking and message mutations
-- [ ] Notification bell icon in nav header with unread count badge
-- [ ] Dropdown notification feed
+- [x ] Convex functions: `createNotification` (internal), `getMyNotifications`, `markNotificationRead`
+- [x ] Call `createNotification` from booking and message mutations
+- [x ] Notification bell icon in nav header with unread count badge
+- [x ] Dropdown notification feed
 
 ---
 
@@ -73,27 +73,67 @@ Currently bookings go straight to "pending" with a pre-calculated amount. The re
 #### 3.1 Quote Flow
 **Effort:** Medium — 3–5 days
 
-- [ ] Update `updateBookingStatus` mutation to support all new status values (`enquiry`, `quoted`, `accepted`, `deposit_paid`, `confirmed`, `disputed`)
-- [ ] Piper can submit a quote (performanceFee, travelFee, notes, validUntil) via new `submitQuote` mutation
-- [ ] Customer can accept or decline a quote
-- [ ] Dashboard shows quote details, accept/decline buttons
-- [ ] Email notification when quote is sent / accepted
+- [x ] Update `updateBookingStatus` mutation to support all new status values (`enquiry`, `quoted`, `accepted`, `deposit_paid`, `confirmed`, `disputed`)
+- [x] Piper can submit a quote (performanceFee, travelFee, notes, validUntil) via new `submitQuote` mutation
+- [x ] Customer can accept or decline a quote
+- [x ] Dashboard shows quote details, accept/decline buttons
+- [x ] Email notification when quote is sent / accepted
+
+**Phase 3.1 Quote Flow is done. Here's how it works end-to-end:**
+
+Piper side (Received Bookings tab):
+
+New/pending enquiries show a "Send Quote" button
+Expands an inline form: currency (NZD/AUD/USD/GBP/EUR), performance fee, travel fee, accommodation fee, notes, valid-until date
+Running total shown as you type
+Once sent, shows a blue "Quote sent — awaiting customer response" summary
+Piper can click "Update Quote" anytime to revise
+Customer side (My Bookings tab):
+
+When status is quoted, a blue quote card appears showing the fee breakdown + total
+Accept Quote → status moves to accepted, piper gets an in-app notification
+Decline → status moves to cancelled, piper notified
+Piper follow-up: Once customer accepts, a "Confirm Booking" button appears to move to confirmed.
 
 #### 3.2 Availability Calendar
 **Effort:** Medium — 3–5 days
 
-- [ ] Piper can block out unavailable dates (`availability.blackoutDates` already in schema)
-- [ ] Calendar component on piper profile and booking form
-- [ ] Booking form prevents selecting a blocked date
-- [ ] Dashboard shows upcoming bookings in a calendar view
+- [x ] Piper can block out unavailable dates (`availability.blackoutDates` already in schema)
+- [x ] Calendar component on piper profile and booking form
+- [x ] Booking form prevents selecting a blocked date
+- [x ] Dashboard shows upcoming bookings in a calendar view
+
+**Phase 3.2 Reviews is done. Here's what's live:**
+
+Customer side (My Bookings — completed bookings):
+
+"Leave a Review" button expands an inline form with interactive star rating (click to select 1-5), optional title, and required comment
+After submitting, shows a green "Review submitted ✓" badge with the star count
+Piper side:
+
+Gets an in-app notification when a review is received
+replyToReview mutation is ready to wire into a UI when you want pipers to respond to reviews from their Dashboard
+Browse view (BagpiperCard details modal):
+
+Full reviews section at the bottom with stars, title, customer name, date, comment, and indented piper response (if any)
 
 #### 3.3 Rich Booking Form
 **Effort:** Small — 1–2 days
 
-- [ ] Update `BookingModal` to capture `eventDetails` (venue name/address, guest count, indoor/outdoor)
-- [ ] Capture `musicPreferences` (tunes requested, genre, notes)
-- [ ] Capture `dressPreference`
-- [ ] These map directly to existing schema fields
+- [x ] Update `BookingModal` to capture `eventDetails` (venue name/address, guest count, indoor/outdoor)
+- [x ] Capture `musicPreferences` (tunes requested, genre, notes)
+- [x ] Capture `dressPreference`
+- [x ] These map directly to existing schema fields
+
+**Phase 3.3 done. The booking form now has four clear sections:**
+
+Your Event — type, date, start time, duration (unchanged)
+Venue — venue name, indoor/outdoor select, full address, guest count
+Music Preferences — tune requests (comma or newline separated, parsed into array), genre select, additional notes
+Dress & Presentation — Highland/Modern/No Preference select, plus a catch-all special requests field
+Contact Details — name, email, phone
+Estimated Cost — with a note that the piper will confirm the final price in their quote
+All new data is saved into the eventDetails, musicPreferences, and dressPreference fields in the schema. The piper can see everything when reviewing a booking enquiry.
 
 ---
 

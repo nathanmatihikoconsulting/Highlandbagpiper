@@ -320,6 +320,67 @@ function StarSelector({ value, onChange }: { value: number; onChange: (v: number
   );
 }
 
+/** Piper reply form for a review on a completed booking. */
+function ReviewReplySection({ bookingId }: { bookingId: Id<"bookings"> }) {
+  const review = useQuery(api.reviews.getBookingReview, { bookingId });
+  const replyToReview = useMutation(api.reviews.replyToReview);
+  const [open, setOpen] = useState(false);
+  const [response, setResponse] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  if (!review) return null;
+
+  return (
+    <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
+      <p className="font-semibold text-charcoal mb-0.5">
+        Customer review — {review.rating}★{review.title ? ` · "${review.title}"` : ""}
+      </p>
+      <p className="text-gray-700 mb-2">{review.comment}</p>
+
+      {review.response ? (
+        <div className="border-l-2 border-primary/30 pl-3">
+          <p className="text-xs font-medium text-primary mb-0.5">Your response</p>
+          <p className="text-gray-600 italic">{review.response}</p>
+        </div>
+      ) : !open ? (
+        <Button size="sm" variant="outline" onClick={() => setOpen(true)}>Reply to Review</Button>
+      ) : (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!response.trim()) return;
+            setSaving(true);
+            try {
+              await replyToReview({ reviewId: review._id, response: response.trim() });
+              toast.success("Response posted!");
+              setOpen(false);
+            } catch {
+              toast.error("Failed to post response");
+            } finally {
+              setSaving(false);
+            }
+          }}
+          className="space-y-2"
+        >
+          <Textarea
+            placeholder="Write your response to this review…"
+            value={response}
+            onChange={(e) => setResponse(e.target.value)}
+            rows={2}
+            className="bg-white text-sm"
+          />
+          <div className="flex gap-2">
+            <Button type="submit" size="sm" className="bg-primary hover:bg-primary-hover text-white" disabled={saving}>
+              {saving ? "Posting…" : "Post Response"}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
 /** Review form + submitted state for a completed customer booking. */
 function ReviewSection({ bookingId, piperName }: { bookingId: Id<"bookings">; piperName: string }) {
   const existingReview = useQuery(api.reviews.getBookingReview, { bookingId });
@@ -402,7 +463,9 @@ export function Dashboard() {
   const myBookings = useQuery(api.bookings.getMyBookings);
   const bagpiperBookings = useQuery(api.bookings.getBagpiperBookings);
   const profile = useQuery(api.bagpipers.getMyProfile);
+  const adminPipers = useQuery(api.bagpipers.getAllBagpipersAdmin);
   const updateBookingStatus = useMutation(api.bookings.updateBookingStatus);
+  const setVerified = useMutation(api.bagpipers.setVerified);
 
   const [openThreadId, setOpenThreadId] = useState<string | null>(null);
   const [openQuoteFormId, setOpenQuoteFormId] = useState<string | null>(null);
@@ -435,6 +498,9 @@ export function Dashboard() {
         <TabsList className="mb-4">
           <TabsTrigger value="bookings">My Bookings ({myBookings.length})</TabsTrigger>
           {profile && <TabsTrigger value="received">Received Bookings ({bagpiperBookings.length})</TabsTrigger>}
+          {adminPipers !== null && adminPipers !== undefined && (
+            <TabsTrigger value="admin">Admin</TabsTrigger>
+          )}
         </TabsList>
 
         {/* ── Customer bookings ── */}
@@ -636,6 +702,11 @@ export function Dashboard() {
                           />
                         )}
 
+                        {/* Review reply — show on completed bookings */}
+                        {booking.status === "completed" && (
+                          <ReviewReplySection bookingId={booking._id} />
+                        )}
+
                         {/* Messages toggle */}
                         <div className="mt-4">
                           <MessagesButton
@@ -651,6 +722,50 @@ export function Dashboard() {
                     </Card>
                   );
                 })
+              )}
+            </div>
+          </TabsContent>
+        )}
+        {/* ── Admin tab ── */}
+        {adminPipers !== null && adminPipers !== undefined && (
+          <TabsContent value="admin">
+            <div className="space-y-4">
+              <h2 className="text-xl font-heading font-semibold text-charcoal">Admin — Piper Verification</h2>
+              {adminPipers.length === 0 ? (
+                <Card><CardContent className="p-8 text-center text-muted-foreground">No pipers found.</CardContent></Card>
+              ) : (
+                adminPipers.map((piper) => (
+                  <Card key={piper._id}>
+                    <CardContent className="p-4 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-charcoal">{piper.name}</p>
+                        <p className="text-sm text-muted-foreground">{piper.city}, {piper.country}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {piper.verified ? (
+                          <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full border border-emerald-300">✓ Verified</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Unverified</span>
+                        )}
+                        <Button
+                          size="sm"
+                          variant={piper.verified ? "destructive" : "default"}
+                          className={piper.verified ? "" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                          onClick={async () => {
+                            try {
+                              await setVerified({ bagpiperId: piper._id, verified: !piper.verified });
+                              toast.success(piper.verified ? "Verification removed" : "Piper verified!");
+                            } catch {
+                              toast.error("Failed to update verification");
+                            }
+                          }}
+                        >
+                          {piper.verified ? "Remove Verification" : "Verify Piper"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
               )}
             </div>
           </TabsContent>

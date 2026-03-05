@@ -110,6 +110,7 @@ export const searchBagpipers = query({
     city: v.optional(v.string()),
     country: v.optional(v.string()),
     specialty: v.optional(v.string()),
+    verifiedOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     let bagpipers;
@@ -154,6 +155,11 @@ export const searchBagpipers = query({
       filteredBagpipers = bagpipers.filter(bagpiper =>
         bagpiper.specialties.includes(args.specialty!)
       );
+    }
+
+    // Filter verified only
+    if (args.verifiedOnly) {
+      filteredBagpipers = filteredBagpipers.filter(b => b.verified === true);
     }
 
     // Get profile images
@@ -201,6 +207,29 @@ export const getBagpiperById = query({
 export const generateUploadUrl = mutation({
   handler: async (ctx) => {
     return await ctx.storage.generateUploadUrl();
+  },
+});
+
+const ADMIN_EMAIL = "nathanmatihikoconsulting@gmail.com";
+
+export const getAllBagpipersAdmin = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+    const user = await ctx.db.get(userId);
+    if ((user as any)?.email !== ADMIN_EMAIL) return null;
+    return await ctx.db.query("bagpipers").collect();
+  },
+});
+
+export const setVerified = mutation({
+  args: { bagpiperId: v.id("bagpipers"), verified: v.boolean() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Must be logged in");
+    const user = await ctx.db.get(userId);
+    if ((user as any)?.email !== ADMIN_EMAIL) throw new Error("Admin access required");
+    await ctx.db.patch(args.bagpiperId, { verified: args.verified });
   },
 });
 

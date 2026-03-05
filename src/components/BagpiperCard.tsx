@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { BookingModal } from "./BookingModal";
@@ -24,6 +25,7 @@ interface BagpiperCardProps {
     specialties: string[];
     averageRating?: number;
     totalReviews: number;
+    verified?: boolean;
   };
   onSignInRequired?: () => void;
 }
@@ -37,6 +39,7 @@ function renderStars(rating: number) {
 export function BagpiperCard({ bagpiper, onSignInRequired }: BagpiperCardProps) {
   const [showBooking, setShowBooking] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const navigate = useNavigate();
 
   const handleBookNow = () => {
     if (onSignInRequired) {
@@ -60,7 +63,14 @@ export function BagpiperCard({ bagpiper, onSignInRequired }: BagpiperCardProps) 
         </div>
 
         <CardContent className="p-5">
-          <h3 className="text-xl font-heading font-semibold text-charcoal mb-1">{bagpiper.name}</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-xl font-heading font-semibold text-charcoal">{bagpiper.name}</h3>
+            {bagpiper.verified && (
+              <span title="Verified piper" className="flex-shrink-0 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full border border-emerald-300">
+                ✓ Verified
+              </span>
+            )}
+          </div>
           <p className="text-muted-foreground text-sm mb-2">{bagpiper.city}, {bagpiper.country}</p>
 
           {bagpiper.averageRating && (
@@ -87,8 +97,8 @@ export function BagpiperCard({ bagpiper, onSignInRequired }: BagpiperCardProps) 
           </p>
 
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/5" onClick={() => setShowDetails(true)}>
-              View Details
+            <Button variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/5" onClick={() => navigate(`/pipers/${bagpiper._id}`)}>
+              View Profile
             </Button>
             <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={handleBookNow}>
               Book Now
@@ -134,7 +144,14 @@ function BagpiperDetailsModal({
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-heading text-2xl text-charcoal">{bagpiper.name}</DialogTitle>
+          <DialogTitle className="font-heading text-2xl text-charcoal flex items-center gap-3">
+            {bagpiper.name}
+            {bagpiper.verified && (
+              <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full border border-emerald-300">
+                ✓ Verified
+              </span>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         {bagpiper.profileImageUrl && (
@@ -243,7 +260,7 @@ function BagpiperDetailsModal({
 
         <div className="flex gap-3 pt-4 border-t">
           <Button variant="outline" className="flex-1" onClick={onClose}>Close</Button>
-          <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={onBook}>Book Now</Button>
+          <Button className="flex-1 bg-primary hover:bg-primary-hover text-white" onClick={onBook}>Enquire Now</Button>
         </div>
       </DialogContent>
     </Dialog>

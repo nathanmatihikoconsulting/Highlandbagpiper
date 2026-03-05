@@ -3,13 +3,24 @@ import { api } from "../convex/_generated/api";
 import { SignInForm } from "./SignInForm";
 import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { BagpiperSearch } from "./components/BagpiperSearch";
 import { BagpiperProfile } from "./components/BagpiperProfile";
 import { Dashboard } from "./components/Dashboard";
 import { NotificationBell } from "./components/NotificationBell";
 import { RoleSelectionScreen } from "./components/RoleSelectionScreen";
+import { PiperProfilePage } from "./pages/PiperProfilePage";
 import { Button } from "@/components/ui/button";
+
+type View = "search" | "profile" | "dashboard" | "signin";
+
+function pathToView(pathname: string): View {
+  if (pathname === "/dashboard") return "dashboard";
+  if (pathname === "/profile") return "profile";
+  if (pathname === "/signin") return "signin";
+  return "search";
+}
 
 function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () => void }) {
   const unread = useQuery(api.messages.getUnreadCount) ?? 0;
@@ -32,17 +43,17 @@ function DashboardNavButton({ active, onClick }: { active: boolean; onClick: () 
 
 function AuthenticatedNavItems({
   currentView,
-  setCurrentView,
+  navigate,
 }: {
-  currentView: string;
-  setCurrentView: (v: "search" | "profile" | "dashboard" | "signin") => void;
+  currentView: View;
+  navigate: (path: string) => void;
 }) {
   const role = useQuery(api.userProfiles.getMyRole);
   return (
     <>
       {role !== "hirer" && (
         <button
-          onClick={() => setCurrentView("profile")}
+          onClick={() => navigate("/profile")}
           className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
             currentView === "profile"
               ? "bg-white/20 text-white"
@@ -54,28 +65,30 @@ function AuthenticatedNavItems({
       )}
       <DashboardNavButton
         active={currentView === "dashboard"}
-        onClick={() => setCurrentView("dashboard")}
+        onClick={() => navigate("/dashboard")}
       />
     </>
   );
 }
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<"search" | "profile" | "dashboard" | "signin">("search");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentView = pathToView(location.pathname);
 
   return (
     <div className="min-h-screen flex flex-col bg-stone">
       <header className="sticky top-0 z-10 bg-primary shadow-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <button onClick={() => setCurrentView("search")} className="flex-shrink-0">
+            <button onClick={() => navigate("/")} className="flex-shrink-0">
               <span className="font-heading text-white text-2xl font-semibold tracking-wide">
                 Highland Bagpiper
               </span>
             </button>
             <nav className="hidden md:flex gap-1">
               <button
-                onClick={() => setCurrentView("search")}
+                onClick={() => navigate("/")}
                 className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
                   currentView === "search"
                     ? "bg-white/20 text-white"
@@ -86,7 +99,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => {
-                  setCurrentView("search");
+                  navigate("/");
                   setTimeout(() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" }), 100);
                 }}
                 className="px-4 py-2 rounded text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
@@ -94,7 +107,7 @@ export default function App() {
                 How it Works
               </button>
               <Authenticated>
-                <AuthenticatedNavItems currentView={currentView} setCurrentView={setCurrentView} />
+                <AuthenticatedNavItems currentView={currentView} navigate={navigate} />
               </Authenticated>
             </nav>
           </div>
@@ -105,7 +118,7 @@ export default function App() {
             </Authenticated>
             <Unauthenticated>
               <Button
-                onClick={() => setCurrentView("signin")}
+                onClick={() => navigate("/signin")}
                 className="bg-white text-primary hover:bg-stone"
               >
                 Sign In
@@ -116,7 +129,10 @@ export default function App() {
       </header>
 
       <main className="flex-1">
-        <Content currentView={currentView} setCurrentView={setCurrentView} />
+        <Routes>
+          <Route path="/pipers/:id" element={<PiperProfilePage />} />
+          <Route path="*" element={<Content currentView={currentView} navigate={navigate} />} />
+        </Routes>
       </main>
 
       <footer className="bg-charcoal text-white py-8">
@@ -130,18 +146,18 @@ export default function App() {
   );
 }
 
-function Content({ currentView, setCurrentView }: {
-  currentView: "search" | "profile" | "dashboard" | "signin";
-  setCurrentView: (view: "search" | "profile" | "dashboard" | "signin") => void;
+function Content({ currentView, navigate }: {
+  currentView: View;
+  navigate: (path: string) => void;
 }) {
   const loggedInUser = useQuery(api.auth.loggedInUser);
   const role = useQuery(api.userProfiles.getMyRole);
 
   useEffect(() => {
     if (loggedInUser && currentView === "signin") {
-      setCurrentView("search");
+      navigate("/");
     }
-  }, [loggedInUser, currentView, setCurrentView]);
+  }, [loggedInUser, currentView, navigate]);
 
   if (loggedInUser === undefined) {
     return (
@@ -163,7 +179,7 @@ function Content({ currentView, setCurrentView }: {
             </div>
             <p className="text-center mt-4">
               <button
-                onClick={() => setCurrentView("search")}
+                onClick={() => navigate("/")}
                 className="text-teal hover:text-teal-hover hover:underline font-medium text-sm"
               >
                 ← Back to browsing
@@ -173,7 +189,6 @@ function Content({ currentView, setCurrentView }: {
         ) : currentView === "search" ? (
           <>
           <div className="flex flex-col lg:flex-row gap-10 py-8">
-            {/* Left column — heading + search + how it works */}
             <div className="flex-1 min-w-0 space-y-10">
               <div>
                 <h1 className="text-5xl font-heading font-bold text-charcoal mb-3 leading-tight">
@@ -184,10 +199,9 @@ function Content({ currentView, setCurrentView }: {
                 </p>
               </div>
 
-              <BagpiperSearch onSignInRequired={() => setCurrentView("signin")} />
+              <BagpiperSearch onSignInRequired={() => navigate("/signin")} />
             </div>
 
-            {/* Right column — Piper Kevin, blending into background */}
             <div className="hidden lg:block w-64 xl:w-72 flex-shrink-0 self-start sticky top-24">
               <div className="relative">
                 <img
@@ -195,44 +209,30 @@ function Content({ currentView, setCurrentView }: {
                   alt="Highland Bagpiper"
                   className="w-full"
                 />
-                {/* Fade all edges into the stone background */}
                 <div className="absolute inset-0 shadow-[inset_0_0_40px_40px_#EFEAE7]" />
               </div>
             </div>
           </div>
 
-          {/* How It Works */}
           <div id="how-it-works" className="py-4 mt-4">
             <h2 className="text-3xl font-heading font-bold text-charcoal text-center mb-10">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
-                  1
-                </div>
+                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">1</div>
                 <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Browse pipers</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Search by location and event type to find an experienced bagpiper near you.
-                </p>
+                <p className="text-gray-600 text-sm leading-relaxed">Search by location or bagpiper name to find an experienced bagpiper near you.</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
-                  2
-                </div>
+                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">2</div>
                 <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Send an enquiry</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Share your event details — date, location, and any special requests — directly with the piper.
-                </p>
+                <p className="text-gray-600 text-sm leading-relaxed">Share your event details — date, location, and any special requests — directly with the piper.</p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">
-                  3
-                </div>
+                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-xl font-heading font-bold mx-auto mb-4">3</div>
                 <h3 className="text-lg font-heading font-semibold text-charcoal mb-2">Confirm your booking</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Finalise the details directly with the piper. Highland Bagpiper connects you with performers who understand the significance of the occasion.
-                </p>
+                <p className="text-gray-600 text-sm leading-relaxed">Finalise the details directly with the piper. Highland Bagpiper connects you with performers who understand the significance of the occasion.</p>
               </div>
             </div>
           </div>

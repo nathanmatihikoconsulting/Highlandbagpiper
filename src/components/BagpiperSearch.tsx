@@ -12,11 +12,13 @@ export function BagpiperSearch({ onSignInRequired }: { onSignInRequired?: () => 
   const [searchTerm, setSearchTerm] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const bagpipers = useQuery(api.bagpipers.searchBagpipers, {
     searchTerm: searchTerm || undefined,
     city: city || undefined,
     country: country !== "all" ? country || undefined : undefined,
+    verifiedOnly: verifiedOnly || undefined,
   });
 
   const locations = useQuery(api.bagpipers.getLocations);
@@ -62,6 +64,21 @@ export function BagpiperSearch({ onSignInRequired }: { onSignInRequired?: () => 
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Verified only toggle */}
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              id="verified-only"
+              type="checkbox"
+              checked={verifiedOnly}
+              onChange={(e) => setVerifiedOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 accent-primary"
+            />
+            <label htmlFor="verified-only" className="text-sm text-muted-foreground cursor-pointer select-none">
+              Show verified pipers only
+              <span className="ml-1.5 bg-emerald-100 text-emerald-700 text-xs font-medium px-1.5 py-0.5 rounded-full border border-emerald-300">✓ Verified</span>
+            </label>
           </div>
         </CardContent>
       </Card>
