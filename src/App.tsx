@@ -190,6 +190,16 @@ function Content({ currentView, navigate }: {
           <>
           <div className="flex flex-col lg:flex-row gap-10 py-8">
             <div className="flex-1 min-w-0 space-y-10">
+              {/* Hero image — mobile/tablet only (hidden on lg+ where the right column shows) */}
+              <div className="block lg:hidden relative mx-auto max-w-xs">
+                <img
+                  src="/piper-kevin.png"
+                  alt="Highland Bagpiper"
+                  className="w-full"
+                />
+                <div className="absolute inset-0 shadow-[inset_0_0_40px_40px_#EFEAE7]" />
+              </div>
+
               <div>
                 <h1 className="text-5xl font-heading font-bold text-charcoal mb-3 leading-tight">
                   Find a trusted Highland bagpiper<br className="hidden md:block" /> for ceremonies and events
