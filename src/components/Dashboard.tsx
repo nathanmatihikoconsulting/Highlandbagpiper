@@ -584,6 +584,14 @@ export function Dashboard() {
                     {/* Quote card — shown when piper has sent a quote */}
                     {booking.status === "quoted" && <QuoteCard booking={booking} />}
 
+                    {/* Deposit paid confirmation */}
+                    {booking.status === "deposit_paid" && (
+                      <div className="mt-4 bg-teal/10 border border-teal rounded-lg p-4">
+                        <p className="font-semibold text-teal mb-1">✓ Deposit paid — your booking is confirmed</p>
+                        <p className="text-sm text-muted-foreground">The remaining balance is due on the day of the event.</p>
+                      </div>
+                    )}
+
                     {/* Pay deposit — shown when booking is accepted */}
                     {booking.status === "accepted" && (
                       <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
