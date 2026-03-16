@@ -329,6 +329,36 @@ export const respondToQuote = mutation({
   },
 });
 
+/** Called client-side after Stripe redirects back with ?payment=success.
+ *  Only updates status if the booking belongs to the current user and is still "accepted". */
+export const confirmDepositPaid = mutation({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Must be logged in");
+
+    const booking = await ctx.db.get(args.bookingId);
+    if (!booking) throw new Error("Booking not found");
+    if (booking.customerId !== userId) throw new Error("Not your booking");
+    if (booking.status !== "accepted") return; // already updated or wrong state
+
+    await ctx.db.patch(args.bookingId, {
+      status: "deposit_paid",
+      updatedAt: Date.now(),
+    });
+
+    const bagpiper = await ctx.db.get(booking.bagpiperId);
+    if (bagpiper) {
+      await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
+        userId: bagpiper.userId,
+        type: "booking_update",
+        title: "Deposit received",
+        message: `${booking.customerName} has paid the deposit for the ${booking.eventType} on ${booking.eventDate}.`,
+      });
+    }
+  },
+});
+
 export const getBookingById = query({
   args: { bookingId: v.id("bookings") },
   handler: async (ctx, args) => {

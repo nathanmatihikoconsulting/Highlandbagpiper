@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -468,13 +468,24 @@ export function Dashboard() {
   const updateBookingStatus = useMutation(api.bookings.updateBookingStatus);
   const setVerified = useMutation(api.bagpipers.setVerified);
   const createDepositCheckoutSession = useAction(api.stripe.createDepositCheckoutSession);
+  const confirmDepositPaid = useMutation(api.bookings.confirmDepositPaid);
+  const navigate = useNavigate();
   const location = useLocation();
   const [payingDepositId, setPayingDepositId] = useState<string | null>(null);
 
-  // Show success toast when Stripe redirects back
+  // When Stripe redirects back with ?payment=success&bookingId=..., mark deposit paid
   useEffect(() => {
-    if (location.search.includes("payment=success")) {
-      toast.success("Payment received! Your deposit has been confirmed.");
+    const params = new URLSearchParams(location.search);
+    if (params.get("payment") === "success") {
+      const bookingId = params.get("bookingId");
+      if (bookingId) {
+        confirmDepositPaid({ bookingId: bookingId as any })
+          .then(() => toast.success("Deposit paid — your booking is confirmed!"))
+          .catch(() => toast.success("Payment received! Your deposit has been confirmed."));
+      } else {
+        toast.success("Payment received! Your deposit has been confirmed.");
+      }
+      navigate("/dashboard", { replace: true });
     }
   }, [location.search]);
 
@@ -484,7 +495,7 @@ export function Dashboard() {
       const origin = window.location.origin;
       const { url } = await createDepositCheckoutSession({
         bookingId: bookingId as any,
-        successUrl: `${origin}/dashboard?payment=success`,
+        successUrl: `${origin}/dashboard?payment=success&bookingId=${bookingId}`,
         cancelUrl: `${origin}/dashboard`,
       });
       window.location.href = url;
