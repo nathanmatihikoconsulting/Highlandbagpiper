@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
+import { useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { FileUpload } from "./FileUpload";
@@ -13,6 +14,94 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+function StripeConnectSection({ profile }: { profile: any }) {
+  const createConnectAccountLink = useAction(api.stripe.createConnectAccountLink);
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  const handleConnect = async () => {
+    setLoading(true);
+    try {
+      const origin = window.location.origin;
+      const returnUrl = `${origin}/profile?stripe=connected`;
+      const refreshUrl = `${origin}/profile?stripe=refresh`;
+      const { url } = await createConnectAccountLink({ returnUrl, refreshUrl });
+      window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to start Stripe setup");
+      setLoading(false);
+    }
+  };
+
+  if (!profile) return null;
+
+  const isConnected = profile.stripeChargesEnabled;
+  const isPending = profile.stripeAccountId && !isConnected;
+
+  // Show success toast when redirected back from Stripe
+  useEffect(() => {
+    if (location.search.includes("stripe=connected")) {
+      toast.success("Stripe account connected! You can now receive payments.");
+    }
+  }, [location.search]);
+
+  return (
+    <div className="max-w-lg space-y-6">
+      <div>
+        <h2 className="font-heading text-xl font-semibold text-charcoal mb-1">Payment Setup</h2>
+        <p className="text-sm text-muted-foreground">
+          Connect your Stripe account to receive deposit and final payments directly from customers.
+        </p>
+      </div>
+
+      {isConnected ? (
+        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+          <span className="text-2xl">✓</span>
+          <div>
+            <p className="font-semibold text-emerald-700">Stripe Connected</p>
+            <p className="text-sm text-emerald-600">You can receive payments from customers.</p>
+          </div>
+        </div>
+      ) : isPending ? (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <span className="text-2xl">⏳</span>
+            <div>
+              <p className="font-semibold text-amber-700">Onboarding in progress</p>
+              <p className="text-sm text-amber-600">Complete your Stripe setup to start accepting payments.</p>
+            </div>
+          </div>
+          <Button
+            onClick={handleConnect}
+            disabled={loading}
+            className="bg-primary hover:bg-primary-hover text-white"
+          >
+            {loading ? "Loading…" : "Continue Stripe Setup"}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="bg-gray-50 border rounded-lg p-4 text-sm text-muted-foreground space-y-1">
+            <p>• Receive 25% deposits when customers accept your quote</p>
+            <p>• Receive the remaining 75% after the event</p>
+            <p>• Highland Bagpiper retains a 5% platform fee</p>
+          </div>
+          <Button
+            onClick={handleConnect}
+            disabled={loading}
+            className="bg-primary hover:bg-primary-hover text-white"
+          >
+            {loading ? "Loading…" : "Connect with Stripe"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Powered by Stripe — your bank details are never stored by Highland Bagpiper.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function BagpiperProfile() {
   const profile = useQuery(api.bagpipers.getMyProfile);
@@ -398,6 +487,12 @@ export function BagpiperProfile() {
               >
                 Files & Media
               </TabsTrigger>
+              <TabsTrigger
+                value="payments"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-4 pb-3"
+              >
+                Payments
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -509,6 +604,10 @@ export function BagpiperProfile() {
 
           <TabsContent value="files" className="p-6 mt-0">
             {profile && <FileUpload bagpiperId={profile._id} />}
+          </TabsContent>
+
+          <TabsContent value="payments" className="p-6 mt-0">
+            <StripeConnectSection profile={profile} />
           </TabsContent>
         </Tabs>
       </Card>

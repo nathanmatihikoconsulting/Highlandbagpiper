@@ -1,4 +1,9 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalQuery } from "./_generated/server";
+
+export const getBagpiperForPayment = internalQuery({
+  args: { bagpiperId: v.id("bagpipers") },
+  handler: async (ctx, args) => ctx.db.get(args.bagpiperId),
+});
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 

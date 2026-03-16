@@ -35,6 +35,7 @@ const applicationTables = {
       blackoutDates: v.optional(v.array(v.string())),
     })),
     verified: v.optional(v.boolean()),
+    stripeChargesEnabled: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
     .index("by_location", ["city", "country"])

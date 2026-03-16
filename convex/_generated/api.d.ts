@@ -18,6 +18,9 @@ import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
 import type * as reviews from "../reviews.js";
 import type * as router from "../router.js";
+import type * as stripe from "../stripe.js";
+import type * as stripeHelpers from "../stripeHelpers.js";
+import type * as stripeWebhook from "../stripeWebhook.js";
 import type * as userProfiles from "../userProfiles.js";
 
 import type {
@@ -37,6 +40,9 @@ declare const fullApi: ApiFromModules<{
   notifications: typeof notifications;
   reviews: typeof reviews;
   router: typeof router;
+  stripe: typeof stripe;
+  stripeHelpers: typeof stripeHelpers;
+  stripeWebhook: typeof stripeWebhook;
   userProfiles: typeof userProfiles;
 }>;
 

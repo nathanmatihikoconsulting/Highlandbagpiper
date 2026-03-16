@@ -1,7 +1,12 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
+
+export const getBookingForPayment = internalQuery({
+  args: { bookingId: v.id("bookings") },
+  handler: async (ctx, args) => ctx.db.get(args.bookingId),
+});
 
 export const createBooking = mutation({
   args: {

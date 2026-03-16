@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useAction } from "convex/react";
+import { useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -466,6 +467,32 @@ export function Dashboard() {
   const adminPipers = useQuery(api.bagpipers.getAllBagpipersAdmin);
   const updateBookingStatus = useMutation(api.bookings.updateBookingStatus);
   const setVerified = useMutation(api.bagpipers.setVerified);
+  const createDepositCheckoutSession = useAction(api.stripe.createDepositCheckoutSession);
+  const location = useLocation();
+  const [payingDepositId, setPayingDepositId] = useState<string | null>(null);
+
+  // Show success toast when Stripe redirects back
+  useEffect(() => {
+    if (location.search.includes("payment=success")) {
+      toast.success("Payment received! Your deposit has been confirmed.");
+    }
+  }, [location.search]);
+
+  const handlePayDeposit = async (bookingId: string) => {
+    setPayingDepositId(bookingId);
+    try {
+      const origin = window.location.origin;
+      const { url } = await createDepositCheckoutSession({
+        bookingId: bookingId as any,
+        successUrl: `${origin}/dashboard?payment=success`,
+        cancelUrl: `${origin}/dashboard`,
+      });
+      window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to start payment");
+      setPayingDepositId(null);
+    }
+  };
 
   const [openThreadId, setOpenThreadId] = useState<string | null>(null);
   const [openQuoteFormId, setOpenQuoteFormId] = useState<string | null>(null);
@@ -556,6 +583,28 @@ export function Dashboard() {
 
                     {/* Quote card — shown when piper has sent a quote */}
                     {booking.status === "quoted" && <QuoteCard booking={booking} />}
+
+                    {/* Pay deposit — shown when booking is accepted */}
+                    {booking.status === "accepted" && (
+                      <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                        <p className="font-semibold text-emerald-800 mb-1">Booking accepted — pay your deposit to confirm</p>
+                        <p className="text-sm text-emerald-700 mb-3">
+                          Deposit (25%): <strong>
+                            {booking.quote
+                              ? `${booking.quote.currency} ${(booking.quote.totalFee * 1.05 * 0.25).toFixed(2)}`
+                              : `$${(booking.totalAmount * 0.25).toFixed(2)}`}
+                          </strong>
+                          <span className="text-xs ml-2 text-muted-foreground">(incl. platform fee)</span>
+                        </p>
+                        <Button
+                          className="bg-primary hover:bg-primary-hover text-white"
+                          onClick={() => handlePayDeposit(booking._id)}
+                          disabled={payingDepositId === booking._id}
+                        >
+                          {payingDepositId === booking._id ? "Redirecting to payment…" : "Pay Deposit"}
+                        </Button>
+                      </div>
+                    )}
 
                     {/* Review section — shown for completed bookings */}
                     {booking.status === "completed" && (
