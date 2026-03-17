@@ -467,8 +467,8 @@ export function Dashboard() {
   const adminPipers = useQuery(api.bagpipers.getAllBagpipersAdmin);
   const updateBookingStatus = useMutation(api.bookings.updateBookingStatus);
   const setVerified = useMutation(api.bagpipers.setVerified);
-  const createDepositCheckoutSession = useAction(api.stripe.createDepositCheckoutSession);
-  const confirmDepositPaid = useMutation(api.bookings.confirmDepositPaid);
+  const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
+  const confirmPayment = useMutation(api.bookings.confirmPayment);
   const navigate = useNavigate();
   const location = useLocation();
   const [payingDepositId, setPayingDepositId] = useState<string | null>(null);
@@ -479,9 +479,9 @@ export function Dashboard() {
     if (params.get("payment") === "success") {
       const bookingId = params.get("bookingId");
       if (bookingId) {
-        confirmDepositPaid({ bookingId: bookingId as any })
-          .then(() => toast.success("Deposit paid — your booking is confirmed!"))
-          .catch(() => toast.success("Payment received! Your deposit has been confirmed."));
+        confirmPayment({ bookingId: bookingId as any })
+          .then(() => toast.success("Payment received — your booking is confirmed!"))
+          .catch(() => toast.success("Payment received!"));
       } else {
         toast.success("Payment received! Your deposit has been confirmed.");
       }
@@ -493,7 +493,7 @@ export function Dashboard() {
     setPayingDepositId(bookingId);
     try {
       const origin = window.location.origin;
-      const { url } = await createDepositCheckoutSession({
+      const { url } = await createCheckoutSession({
         bookingId: bookingId as any,
         successUrl: `${origin}/dashboard?payment=success&bookingId=${bookingId}`,
         cancelUrl: `${origin}/dashboard`,
@@ -595,23 +595,22 @@ export function Dashboard() {
                     {/* Quote card — shown when piper has sent a quote */}
                     {booking.status === "quoted" && <QuoteCard booking={booking} />}
 
-                    {/* Deposit paid confirmation */}
-                    {booking.status === "deposit_paid" && (
+                    {/* Payment confirmed */}
+                    {(booking.status === "paid" || booking.status === "deposit_paid") && (
                       <div className="mt-4 bg-teal/10 border border-teal rounded-lg p-4">
-                        <p className="font-semibold text-teal mb-1">✓ Deposit paid — your booking is confirmed</p>
-                        <p className="text-sm text-muted-foreground">The remaining balance is due on the day of the event.</p>
+                        <p className="font-semibold text-teal">✓ Payment received — your booking is confirmed</p>
                       </div>
                     )}
 
-                    {/* Pay deposit — shown when booking is accepted */}
+                    {/* Make payment — shown when booking is accepted */}
                     {booking.status === "accepted" && (
                       <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                        <p className="font-semibold text-emerald-800 mb-1">Booking accepted — pay your deposit to confirm</p>
+                        <p className="font-semibold text-emerald-800 mb-1">Booking accepted — make payment to confirm</p>
                         <p className="text-sm text-emerald-700 mb-3">
-                          Deposit (25%): <strong>
+                          Total: <strong>
                             {booking.quote
-                              ? `${booking.quote.currency} ${(booking.quote.totalFee * 1.05 * 0.25).toFixed(2)}`
-                              : `$${(booking.totalAmount * 0.25).toFixed(2)}`}
+                              ? `${booking.quote.currency} ${(booking.quote.totalFee * 1.05).toFixed(2)}`
+                              : `$${(booking.totalAmount * 1.05).toFixed(2)}`}
                           </strong>
                           <span className="text-xs ml-2 text-muted-foreground">(incl. platform fee)</span>
                         </p>
@@ -620,7 +619,7 @@ export function Dashboard() {
                           onClick={() => handlePayDeposit(booking._id)}
                           disabled={payingDepositId === booking._id}
                         >
-                          {payingDepositId === booking._id ? "Redirecting to payment…" : "Pay Deposit"}
+                          {payingDepositId === booking._id ? "Redirecting to payment…" : "Make Payment"}
                         </Button>
                       </div>
                     )}

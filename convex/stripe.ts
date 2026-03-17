@@ -46,7 +46,7 @@ export const createConnectAccountLink = action({
 
 // ─── Customer: Deposit checkout ───────────────────────────────────────────────
 
-export const createDepositCheckoutSession = action({
+export const createCheckoutSession = action({
   args: {
     bookingId: v.id("bookings"),
     successUrl: v.string(),
@@ -74,9 +74,8 @@ export const createDepositCheckoutSession = action({
     // Use quote totals if available, otherwise fall back to booking.totalAmount
     const baseFee: number = booking.quote ? (booking.quote as any).totalFee : booking.totalAmount;
     const currency: string = booking.quote ? (booking.quote as any).currency.toLowerCase() : "nzd";
-    const customerTotal: number = baseFee * 1.05;
-    const depositAmount: number = customerTotal * 0.25;
-    const applicationFee: number = baseFee * 0.05 * 0.25;
+    const totalAmount: number = baseFee * 1.05;
+    const applicationFee: number = baseFee * 0.05;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -86,10 +85,10 @@ export const createDepositCheckoutSession = action({
           price_data: {
             currency,
             product_data: {
-              name: `Deposit — ${booking.eventType}`,
-              description: `25% deposit · ${piper.name} · ${booking.eventDate}`,
+              name: booking.eventType,
+              description: `${piper.name} · ${booking.eventDate}`,
             },
-            unit_amount: Math.round(depositAmount * 100),
+            unit_amount: Math.round(totalAmount * 100),
           },
           quantity: 1,
         },
@@ -128,7 +127,7 @@ export const processWebhookEvent = internalAction({
       const session = event.data.object as Stripe.Checkout.Session;
       const bookingId = session.metadata?.bookingId;
       if (bookingId && session.payment_status === "paid") {
-        await ctx.runMutation(internal.stripeHelpers.markDepositPaid, {
+        await ctx.runMutation(internal.stripeHelpers.markPaid, {
           bookingId: bookingId as any,
           amountPaid: (session.amount_total ?? 0) / 100,
           stripePaymentIntentId: (session.payment_intent as string) ?? "",

@@ -9,7 +9,7 @@ export const saveStripeAccountId = internalMutation({
   },
 });
 
-export const markDepositPaid = internalMutation({
+export const markPaid = internalMutation({
   args: {
     bookingId: v.id("bookings"),
     amountPaid: v.number(),
@@ -20,7 +20,7 @@ export const markDepositPaid = internalMutation({
     if (!booking) return;
 
     await ctx.db.patch(args.bookingId, {
-      status: "deposit_paid",
+      status: "paid",
       stripePaymentIntentId: args.stripePaymentIntentId,
       payment: {
         depositAmount: args.amountPaid,
@@ -33,9 +33,9 @@ export const markDepositPaid = internalMutation({
     if (piper) {
       await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
         userId: piper.userId,
-        type: "deposit_paid",
-        title: "Deposit received!",
-        message: `${booking.customerName} paid a ${args.amountPaid.toFixed(2)} deposit for ${booking.eventType} on ${booking.eventDate}.`,
+        type: "booking_update",
+        title: "Payment received!",
+        message: `${booking.customerName} has paid in full for ${booking.eventType} on ${booking.eventDate}.`,
       });
     }
   },

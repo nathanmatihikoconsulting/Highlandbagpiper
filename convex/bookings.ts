@@ -331,7 +331,7 @@ export const respondToQuote = mutation({
 
 /** Called client-side after Stripe redirects back with ?payment=success.
  *  Only updates status if the booking belongs to the current user and is still "accepted". */
-export const confirmDepositPaid = mutation({
+export const confirmPayment = mutation({
   args: { bookingId: v.id("bookings") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -343,7 +343,7 @@ export const confirmDepositPaid = mutation({
     if (booking.status !== "accepted") return; // already updated or wrong state
 
     await ctx.db.patch(args.bookingId, {
-      status: "deposit_paid",
+      status: "paid",
       updatedAt: Date.now(),
     });
 
@@ -352,8 +352,8 @@ export const confirmDepositPaid = mutation({
       await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
         userId: bagpiper.userId,
         type: "booking_update",
-        title: "Deposit received",
-        message: `${booking.customerName} has paid the deposit for the ${booking.eventType} on ${booking.eventDate}.`,
+        title: "Payment received",
+        message: `${booking.customerName} has paid in full for the ${booking.eventType} on ${booking.eventDate}.`,
       });
     }
   },
