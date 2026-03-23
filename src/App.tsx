@@ -11,6 +11,7 @@ import { Dashboard } from "./components/Dashboard";
 import { NotificationBell } from "./components/NotificationBell";
 import { RoleSelectionScreen } from "./components/RoleSelectionScreen";
 import { PiperProfilePage } from "./pages/PiperProfilePage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { Button } from "@/components/ui/button";
 
 type View = "search" | "profile" | "dashboard" | "signin";
@@ -136,13 +137,19 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/pipers/:id" element={<PiperProfilePage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<Content currentView={currentView} navigate={navigate} />} />
         </Routes>
       </main>
 
       <footer className="bg-charcoal text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
           <p className="text-white/70 text-sm">&copy; 2026 Highland Bagpiper. Connecting tradition with celebration.</p>
+          <p className="text-white/50 text-xs">
+            <button onClick={() => navigate("/privacy")} className="hover:text-white/80 hover:underline transition-colors">
+              Privacy Policy
+            </button>
+          </p>
         </div>
       </footer>
 
