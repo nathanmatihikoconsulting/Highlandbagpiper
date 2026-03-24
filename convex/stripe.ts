@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { action, internalAction } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { api, internal } from "./_generated/api";
+import { calculateFees } from "./feeCalculations";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-02-25.clover" });
@@ -74,8 +75,9 @@ export const createCheckoutSession = action({
     // Use quote totals if available, otherwise fall back to booking.totalAmount
     const baseFee: number = booking.quote ? (booking.quote as any).totalFee : booking.totalAmount;
     const currency: string = booking.quote ? (booking.quote as any).currency.toLowerCase() : "nzd";
-    const totalAmount: number = baseFee * 1.05;
-    const applicationFee: number = baseFee * 0.05;
+
+    // GST-aware fee calculation based on piper's registration status
+    const fees = calculateFees(baseFee, piper.gstRegistered ?? false);
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -88,16 +90,27 @@ export const createCheckoutSession = action({
               name: booking.eventType,
               description: `${piper.name} · ${booking.eventDate}`,
             },
-            unit_amount: Math.round(totalAmount * 100),
+            unit_amount: Math.round(fees.totalCharged * 100),
           },
           quantity: 1,
         },
       ],
       payment_intent_data: {
-        application_fee_amount: Math.round(applicationFee * 100),
+        application_fee_amount: Math.round(fees.platformFeeIncGst * 100),
         transfer_data: { destination: piper.stripeAccountId },
       },
-      metadata: { bookingId: args.bookingId },
+      metadata: {
+        bookingId: args.bookingId,
+        piperBaseFee: String(fees.piperBaseFee),
+        piperGst: String(fees.piperGst),
+        piperFeeIncGst: String(fees.piperFeeIncGst),
+        platformFeeExGst: String(fees.platformFeeExGst),
+        platformGst: String(fees.platformGst),
+        platformFeeIncGst: String(fees.platformFeeIncGst),
+        totalCharged: String(fees.totalCharged),
+        piperGstRegistered: String(fees.piperGstRegistered),
+        platformFeeRate: String(fees.platformFeeRate),
+      },
       success_url: args.successUrl,
       cancel_url: args.cancelUrl,
     });
@@ -127,10 +140,22 @@ export const processWebhookEvent = internalAction({
       const session = event.data.object as Stripe.Checkout.Session;
       const bookingId = session.metadata?.bookingId;
       if (bookingId && session.payment_status === "paid") {
+        const m = session.metadata ?? {};
         await ctx.runMutation(internal.stripeHelpers.markPaid, {
           bookingId: bookingId as any,
           amountPaid: (session.amount_total ?? 0) / 100,
           stripePaymentIntentId: (session.payment_intent as string) ?? "",
+          feeBreakdown: {
+            piperBaseFee: Number(m.piperBaseFee ?? 0),
+            piperGst: Number(m.piperGst ?? 0),
+            piperFeeIncGst: Number(m.piperFeeIncGst ?? 0),
+            platformFeeExGst: Number(m.platformFeeExGst ?? 0),
+            platformGst: Number(m.platformGst ?? 0),
+            platformFeeIncGst: Number(m.platformFeeIncGst ?? 0),
+            totalCharged: (session.amount_total ?? 0) / 100,
+            piperGstRegistered: m.piperGstRegistered === "true",
+            platformFeeRate: Number(m.platformFeeRate ?? 0.10),
+          },
         });
       }
     }

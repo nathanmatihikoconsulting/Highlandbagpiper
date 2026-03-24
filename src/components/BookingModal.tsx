@@ -107,7 +107,7 @@ export function BookingModal({ bagpiper, onClose }: BookingModalProps) {
   };
 
   const subtotal = bagpiper.hourlyRate * form.duration;
-  const platformFee = subtotal * 0.05;
+  const platformFee = subtotal * 0.10 * 1.15; // 10% + 15% GST
   const total = subtotal + platformFee;
 
   return (
@@ -289,7 +289,7 @@ export function BookingModal({ bagpiper, onClose }: BookingModalProps) {
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
-                <span>Platform fee (5%)</span>
+                <span>Platform fee (10% + GST)</span>
                 <span>${platformFee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-semibold text-base border-t pt-2 mt-1">

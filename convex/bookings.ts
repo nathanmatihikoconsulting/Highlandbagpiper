@@ -2,6 +2,7 @@ import { query, mutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
+import { calculateFees } from "./feeCalculations";
 
 export const getBookingForPayment = internalQuery({
   args: { bookingId: v.id("bookings") },
@@ -42,11 +43,14 @@ export const createBooking = mutation({
       throw new Error("Bagpiper not found");
     }
 
-    // Calculate amounts
+    // Calculate amounts using GST-aware fee helper
     const subtotal = bagpiper.hourlyRate * args.duration;
-    const platformFee = subtotal * 0.05; // 5% platform fee
-    const totalAmount = subtotal + platformFee;
-    const bagpiperAmount = subtotal;
+    const fees = calculateFees(subtotal, bagpiper.gstRegistered ?? false);
+    const { totalAmount, platformFeeIncGst: platformFee, piperFeeIncGst: bagpiperAmount } = {
+      totalAmount: fees.totalCharged,
+      platformFeeIncGst: fees.platformFeeIncGst,
+      piperFeeIncGst: fees.piperFeeIncGst,
+    };
 
     const tunes = args.tuneRequests
       ? args.tuneRequests.split(/[\n,]+/).map((t) => t.trim()).filter(Boolean)
@@ -282,12 +286,15 @@ export const submitQuote = mutation({
       },
     });
 
-    // Notify the customer
+    // Notify the customer — clarify GST status so they understand the checkout total
+    const gstNote = bagpiper.gstRegistered
+      ? `(excl. GST) — GST and a platform service fee will be added at checkout`
+      : `— a platform service fee will be added at checkout`;
     await ctx.scheduler.runAfter(0, internal.notifications.createNotification, {
       userId: booking.customerId,
       type: "quote_received",
       title: "Quote received",
-      message: `${bagpiper.name} has sent a quote of ${args.currency} ${totalFee.toFixed(2)} for your ${booking.eventType}.`,
+      message: `${bagpiper.name} has sent a quote of ${args.currency} ${totalFee.toFixed(2)} ${gstNote} for your ${booking.eventType}.`,
     });
   },
 });
