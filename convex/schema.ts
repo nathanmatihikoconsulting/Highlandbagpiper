@@ -36,6 +36,10 @@ const applicationTables = {
     })),
     verified: v.optional(v.boolean()),
     stripeChargesEnabled: v.optional(v.boolean()),
+    // GST registration details
+    gstRegistered: v.optional(v.boolean()),
+    gstNumber: v.optional(v.string()),
+    companyName: v.optional(v.string()),
   })
     .index("by_user", ["userId"])
     .index("by_location", ["city", "country"])
@@ -133,6 +137,18 @@ const applicationTables = {
       stripeTransferId: v.optional(v.string()),
     })),
     updatedAt: v.optional(v.number()),
+    // GST-aware fee breakdown, populated when payment is completed
+    feeBreakdown: v.optional(v.object({
+      piperBaseFee: v.number(),
+      piperGst: v.number(),
+      piperFeeIncGst: v.number(),
+      platformFeeExGst: v.number(),
+      platformGst: v.number(),
+      platformFeeIncGst: v.number(),
+      totalCharged: v.number(),
+      piperGstRegistered: v.boolean(),
+      platformFeeRate: v.number(),
+    })),
   })
     .index("by_customer", ["customerId"])
     .index("by_bagpiper", ["bagpiperId"])

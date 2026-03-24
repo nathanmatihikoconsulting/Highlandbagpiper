@@ -744,6 +744,39 @@ export function Dashboard() {
                           </div>
                         )}
 
+                        {/* Fee breakdown — shown on paid/completed bookings */}
+                        {(booking.status === "paid" || booking.status === "completed") && (booking as any).feeBreakdown && (
+                          <div className="mt-3 bg-gray-50 border rounded-lg overflow-hidden text-sm">
+                            <p className="font-semibold text-charcoal px-3 py-2 border-b bg-white">Payment Breakdown</p>
+                            <div className="px-3 py-2 space-y-1.5">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">
+                                  Your fee {(booking as any).feeBreakdown.piperGstRegistered ? "(excl. GST)" : ""}
+                                </span>
+                                <span>${(booking as any).feeBreakdown.piperBaseFee.toFixed(2)}</span>
+                              </div>
+                              {(booking as any).feeBreakdown.piperGst > 0 && (
+                                <div className="flex justify-between text-amber-700">
+                                  <span>GST on your fee — remit to IRD</span>
+                                  <span>${(booking as any).feeBreakdown.piperGst.toFixed(2)}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between text-muted-foreground">
+                                <span>Platform fee (incl. GST)</span>
+                                <span>−${(booking as any).feeBreakdown.platformFeeIncGst.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between font-semibold border-t pt-1.5 mt-0.5">
+                                <span>Customer paid</span>
+                                <span>${(booking as any).feeBreakdown.totalCharged.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between font-semibold text-emerald-700">
+                                <span>You received (approx.)</span>
+                                <span>~${(booking as any).feeBreakdown.piperFeeIncGst.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Existing quote summary (when quoted and form is closed) */}
                         {isQuoted && !quoteFormOpen && booking.quote && (
                           <div className="mt-3 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3">

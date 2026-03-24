@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  /* Cover page */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    page-break-after: always;
+  }
+  .cover-logo {
+    font-size: 13pt;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #e8b84b;
+    margin-bottom: 60px;
+  }
+  .cover-title {
+    font-size: 32pt;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+  .cover-subtitle {
+    font-size: 14pt;
+    font-weight: 400;
+    color: #a0b4c8;
+    margin-bottom: 60px;
+    max-width: 560px;
+  }
+  .cover-meta {
+    font-size: 10pt;
+    color: #6b8aaa;
+    line-height: 2;
+  }
+  .cover-meta span {
+    color: #c0cfe0;
+    font-weight: 500;
+  }
+  .cover-line {
+    width: 60px;
+    height: 4px;
+    background: #e8b84b;
+    margin-bottom: 30px;
+    border-radius: 2px;
+  }
+
+  /* Page layout */
+  .page {
+    padding: 60px 70px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Section headers */
+  .section-label {
+    font-size: 8.5pt;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #e8b84b;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #0f3460;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #0f3460;
+    margin-top: 36px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8b84b;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    font-weight: 600;
+    color: #1a3a5c;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  /* Question blocks */
+  .question-block {
+    background: #f0f4f8;
+    border-left: 4px solid #0f3460;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0 28px 0;
+    font-style: italic;
+    color: #1a3a5c;
+    font-size: 10.5pt;
+    line-height: 1.6;
+  }
+  .question-block strong {
+    display: block;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #0f3460;
+    margin-bottom: 6px;
+    font-style: normal;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0 24px 0;
+    font-size: 10pt;
+  }
+  thead tr {
+    background: #0f3460;
+    color: white;
+  }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9.5pt;
+  }
+  tbody tr:nth-child(even) {
+    background: #f5f8fc;
+  }
+  tbody tr:nth-child(odd) {
+    background: #ffffff;
+  }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  .td-label {
+    font-weight: 500;
+    color: #1a3a5c;
+  }
+  .td-highlight {
+    font-weight: 700;
+    color: #0f3460;
+  }
+  .td-green {
+    font-weight: 700;
+    color: #16a34a;
+  }
+  .td-amber {
+    font-weight: 700;
+    color: #d97706;
+  }
+  .td-red {
+    font-weight: 600;
+    color: #dc2626;
+  }
+  .td-muted {
+    color: #64748b;
+    font-size: 9.5pt;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout-warning {
+    background: #fefce8;
+    border: 1px solid #fbbf24;
+  }
+  .callout-warning .callout-title {
+    color: #92400e;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 10pt;
+  }
+  .callout-warning p {
+    color: #78350f;
+    font-size: 10pt;
+    margin: 0;
+  }
+  .callout-info {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+  }
+  .callout-info .callout-title {
+    color: #1e40af;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 10pt;
+  }
+  .callout-info p {
+    color: #1e3a8a;
+    font-size: 10pt;
+    margin: 0;
+  }
+  .callout-success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+  }
+  .callout-success .callout-title {
+    color: #14532d;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 10pt;
+  }
+  .callout-success p {
+    color: #15803d;
+    font-size: 10pt;
+    margin: 0;
+  }
+
+  /* Fee breakdown card */
+  .fee-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .fee-card-header {
+    background: #0f3460;
+    color: white;
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 10.5pt;
+  }
+  .fee-card-body {
+    padding: 14px 18px;
+  }
+  .fee-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 10pt;
+  }
+  .fee-row:last-child {
+    border-bottom: none;
+  }
+  .fee-row.total {
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+    margin-top: 4px;
+    padding-top: 10px;
+    font-weight: 700;
+    font-size: 10.5pt;
+    color: #0f3460;
+  }
+  .fee-row.piper-receives {
+    color: #16a34a;
+    font-weight: 700;
+  }
+  .fee-row .label {
+    color: #475569;
+  }
+  .fee-row.total .label, .fee-row.piper-receives .label {
+    color: inherit;
+  }
+  .fee-row .amount {
+    font-variant-numeric: tabular-nums;
+  }
+  .fee-row .muted {
+    color: #94a3b8;
+    font-size: 9pt;
+  }
+
+  /* Implementation steps */
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: #0f3460;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 9.5pt;
+    margin-top: 2px;
+  }
+  .step-content h3 {
+    margin-top: 2px;
+    margin-bottom: 4px;
+    font-size: 10.5pt;
+  }
+  .step-content p {
+    font-size: 10pt;
+    color: #475569;
+    margin-bottom: 0;
+  }
+  .step-content code {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #0f3460;
+  }
+
+  /* Recommendation badge */
+  .badge {
+    display: inline-block;
+    background: #e8b84b;
+    color: #1a1a00;
+    font-weight: 700;
+    font-size: 9pt;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Page breaks */
+  .page-break { page-break-after: always; }
+
+  /* Footer rule */
+  .section-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 32px 0;
+  }
+
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+  li {
+    margin-bottom: 5px;
+    font-size: 10.5pt;
+    color: #333;
+  }
+
+  .page-header {
+    border-bottom: 2px solid #e8b84b;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px dotted #cbd5e1;
+    font-size: 10.5pt;
+  }
+  .toc-item .toc-num {
+    color: #e8b84b;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+  .toc-item .toc-title {
+    flex: 1;
+    color: #1a3a5c;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #0f3460, #1a3a5c);
+    color: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .highlight-box h3 {
+    color: #e8b84b;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .highlight-box p {
+    color: #c0d0e8;
+    margin-bottom: 0;
+    font-size: 10.5pt;
+  }
+  .highlight-box .big-number {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #e8b84b;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .highlight-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  .highlight-item {
+    flex: 1;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-logo">Matihiko Mahi Limited · Highland Bagpiper</div>
+  <div class="cover-line"></div>
+  <div class="cover-title">Stripe Integration &amp; GST Fee Structure Analysis</div>
+  <div class="cover-subtitle">
+    A technical and financial analysis of the platform's payment configuration,
+    GST compliance requirements, and recommended fee structure for New Zealand operations.
+  </div>
+  <div class="cover-meta">
+    <div>Prepared for: <span>Matihiko Mahi Limited</span></div>
+    <div>Platform: <span>Highland Bagpiper</span></div>
+    <div>Date: <span>24 March 2026</span></div>
+    <div>Status: <span>Implementation Planning</span></div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Navigation</div>
+    <h1>Contents</h1>
+  </div>
+
+  <div class="toc-item"><span><span class="toc-num">1</span><span class="toc-title">Context &amp; Questions</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">2</span><span class="toc-title">Current Stripe Configuration</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">3</span><span class="toc-title">GST Roles &amp; Obligations</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">4</span><span class="toc-title">Fee Analysis at $300 Booking</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">5</span><span class="toc-title">Platform Fee Recommendation</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">6</span><span class="toc-title">Implementation Plan</span></span></div>
+  <div class="toc-item"><span><span class="toc-num">7</span><span class="toc-title">IRD Compliance Notes</span></span></div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 1: CONTEXT & QUESTIONS -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 1</div>
+    <h1>Context &amp; Questions</h1>
+  </div>
+
+  <p>
+    The following questions were raised by the platform owner while reviewing the Highland Bagpiper
+    Stripe integration. This report addresses each in full.
+  </p>
+
+  <div class="question-block">
+    <strong>Question 1 — Stripe Payment Method</strong>
+    On my payment intent, am I using the Stripe <em>account</em> field or the <em>transfer destination</em> field?
+  </div>
+
+  <p>
+    The current implementation uses <strong>transfer_data.destination</strong>. This means the full charge
+    is collected by the Highland Bagpiper platform account first, then Stripe automatically transfers
+    the piper's portion to their connected account. This is distinct from <em>on_behalf_of</em> (which
+    charges directly on behalf of the connected account) or <em>stripe_account</em> (which makes API
+    calls as the connected account).
+  </p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Current Configuration</div>
+    <p>File: <code>convex/stripe.ts</code> · Line 98 —
+    <code>transfer_data: &#123; destination: piper.stripeAccountId &#125;</code><br>
+    The platform collects 100% of the charge, retains the application fee, then transfers the remainder to the piper.</p>
+  </div>
+
+  <div class="question-block">
+    <strong>Question 2 — GST &amp; Fee Structure</strong>
+    The Piper is the merchant and may be GST registered or not. The client may be GST registered or not.
+    Matihiko Mahi Limited is the platform owner and is GST registered. The payment will go straight from
+    client to the merchant. A platform fee (currently set at 5%) needs to be deducted from the client to
+    pay for the platform, the Stripe fees and GST. We will likely need the piper to indicate if they are
+    GST registered when setting up their profile with GST number and their company name. Can you please
+    create a plan based on the current platform configuration to a working system that makes it really
+    simple and easy for the piper to manage. Based on an average charge of $300 from the piper per event,
+    please analyse if 5% is enough for the platform to make a small profit.
+  </div>
+
+  <p>
+    The analysis below addresses each component of this question: GST obligations for each party,
+    a full fee breakdown at $300, an assessment of the 5% rate, a recommendation, and a
+    step-by-step implementation plan.
+  </p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 2: CURRENT STRIPE CONFIGURATION -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 2</div>
+    <h1>Current Stripe Configuration</h1>
+  </div>
+
+  <h2>Payment Flow Architecture</h2>
+
+  <p>
+    The Highland Bagpiper platform uses <strong>Stripe Connect with transfer_data.destination</strong>.
+    This architecture is correct and appropriate for a marketplace where the platform takes a fee.
+    The flow works as follows:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Step</th><th>What Happens</th><th>Who It Involves</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-label">1</td><td>Customer completes Stripe Checkout</td><td>Customer → Platform Stripe account</td></tr>
+      <tr><td class="td-label">2</td><td>Stripe deducts its processing fee from the total</td><td>Stripe → Platform</td></tr>
+      <tr><td class="td-label">3</td><td>Platform retains the application_fee_amount</td><td>Platform keeps its fee</td></tr>
+      <tr><td class="td-label">4</td><td>Remainder is transferred to the piper's connected account</td><td>Platform → Piper Stripe account</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Current Fee Settings</h2>
+
+  <table>
+    <thead>
+      <tr><th>Setting</th><th>Current Value</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-label">Platform fee rate</td><td>5%</td><td>Of piper's base fee</td></tr>
+      <tr><td class="td-label">GST handling</td><td>Not implemented</td><td>No GST fields on piper profile</td></tr>
+      <tr><td class="td-label">Fee includes GST?</td><td>No</td><td>Needs to be added — platform is GST registered</td></tr>
+      <tr><td class="td-label">Stripe product (NZ domestic)</td><td>1.7% + $0.30 NZD</td><td>Charged on the total amount</td></tr>
+      <tr><td class="td-label">Stripe product (international)</td><td>3.5% + $0.30 NZD</td><td>Relevant for tourist bookings</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Important: Stripe Fees Come Off the Platform's Share</div>
+    <p>
+      With transfer_data.destination, Stripe's processing fee is charged to the <strong>platform account</strong>,
+      not the piper's connected account. This means Stripe's fee reduces the platform's net income —
+      it must be factored into the platform fee rate calculation.
+    </p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 3: GST ROLES -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 3</div>
+    <h1>GST Roles &amp; Obligations</h1>
+  </div>
+
+  <h2>Party-by-Party GST Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Party</th><th>GST Status</th><th>Obligation</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">Matihiko Mahi Limited (Platform)</td>
+        <td class="td-green">GST Registered</td>
+        <td>Must charge GST on the platform service fee and remit to IRD. Issues GST invoices for the platform fee portion.</td>
+      </tr>
+      <tr>
+        <td class="td-label">Piper (GST Registered)</td>
+        <td class="td-green">GST Registered</td>
+        <td>Their performance fee is GST-exclusive. They must collect and remit 15% GST on their fee to IRD independently.</td>
+      </tr>
+      <tr>
+        <td class="td-label">Piper (Not GST Registered)</td>
+        <td class="td-muted">Not Registered</td>
+        <td>No GST obligation. Their fee is flat — no GST component. No IRD filing required for GST.</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer (Either Status)</td>
+        <td class="td-muted">Either</td>
+        <td>Pays the GST-inclusive total. If GST registered, they may claim the platform fee GST as an input tax credit (the piper GST portion depends on piper's registration).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What "GST Registered" Means for Pipers</h2>
+
+  <p>
+    A piper registered for GST in New Zealand is required to register once their annual turnover
+    from taxable supplies exceeds $60,000. Once registered:
+  </p>
+
+  <ul>
+    <li>Their performance fee is quoted <strong>excluding GST</strong></li>
+    <li>15% GST is added on top when the customer pays</li>
+    <li>The piper files a GST return with IRD (usually every 2 months) and remits the collected GST</li>
+    <li>The piper can also claim back GST on their own business expenses</li>
+  </ul>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Platform's Responsibility</div>
+    <p>
+      The platform should clearly communicate to pipers: "If you are GST registered, the fee you enter
+      is treated as GST-exclusive. We add your GST for you at checkout. You are responsible for filing
+      and remitting that GST with IRD."
+    </p>
+  </div>
+
+  <h2>Key Design Principle</h2>
+
+  <p>
+    The platform should keep it simple for pipers: <strong>they enter one number — their fee</strong>.
+    The system handles whether GST is added on top based on their registration status.
+    The piper never needs to manually calculate or enter GST amounts.
+  </p>
+
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 4: FEE ANALYSIS -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 4</div>
+    <h1>Fee Analysis at $300 Booking</h1>
+  </div>
+
+  <h2>NZ Stripe Processing Fees</h2>
+
+  <table>
+    <thead>
+      <tr><th>Card Type</th><th>Rate</th><th>On $300 charge</th><th>On $315 charge (5% fee)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">Domestic NZ card</td>
+        <td>1.7% + $0.30</td>
+        <td>$5.40</td>
+        <td>$5.655</td>
+      </tr>
+      <tr>
+        <td class="td-label">International card</td>
+        <td>3.5% + $0.30</td>
+        <td>$10.80</td>
+        <td>$11.325</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:9.5pt; color:#64748b;">
+    Note: Tourist bookings (international cards) may represent 30–40% of bookings given the nature of the service.
+    This materially affects platform profitability and must be considered in fee-setting.
+  </p>
+
+  <h2>Scenario A — Piper NOT GST Registered, Current 5% Fee</h2>
+
+  <div class="fee-card">
+    <div class="fee-card-header">Customer Pays — Non-GST Piper · $300 Base Fee · 5% Platform Rate</div>
+    <div class="fee-card-body">
+      <div class="fee-row"><span class="label">Piper's fee (flat, no GST)</span><span class="amount">$300.00</span></div>
+      <div class="fee-row"><span class="label">Platform fee (5% of piper fee, incl. GST)</span><span class="amount">$15.00</span></div>
+      <div class="fee-row total"><span class="label">Customer pays</span><span class="amount">$315.00</span></div>
+      <div class="fee-row"><span class="label muted">↳ Stripe domestic fee (1.7% + $0.30)</span><span class="amount muted">−$5.655</span></div>
+      <div class="fee-row"><span class="label muted">↳ Stripe international fee (3.5% + $0.30)</span><span class="amount muted">−$11.33</span></div>
+      <div class="fee-row"><span class="label muted">↳ Platform retains (application fee)</span><span class="amount muted">$15.00</span></div>
+      <div class="fee-row"><span class="label muted">↳ GST platform must remit to IRD (15/115 of $15)</span><span class="amount muted">−$1.96</span></div>
+      <div class="fee-row piper-receives"><span class="label">Piper receives</span><span class="amount">~$294.00</span></div>
+      <div class="fee-row" style="color:#16a34a;"><span class="label">Platform net profit (domestic card)</span><span class="amount">~$7.39</span></div>
+      <div class="fee-row" style="color:#d97706;"><span class="label">Platform net profit (international card)</span><span class="amount">~$1.71</span></div>
+    </div>
+  </div>
+
+  <h2>Scenario B — Piper GST Registered, Current 5% Fee</h2>
+
+  <div class="fee-card">
+    <div class="fee-card-header">Customer Pays — GST-Registered Piper · $300 Base Fee (excl. GST) · 5% Platform Rate</div>
+    <div class="fee-card-body">
+      <div class="fee-row"><span class="label">Piper's fee (excl. GST)</span><span class="amount">$300.00</span></div>
+      <div class="fee-row"><span class="label">GST on piper's fee (15%)</span><span class="amount">$45.00</span></div>
+      <div class="fee-row"><span class="label">Platform fee (5% of base, incl. GST)</span><span class="amount">$15.00 + $2.25 GST = $17.25</span></div>
+      <div class="fee-row total"><span class="label">Customer pays</span><span class="amount">$362.25</span></div>
+      <div class="fee-row"><span class="label muted">↳ Platform retains (application fee)</span><span class="amount muted">$17.25</span></div>
+      <div class="fee-row"><span class="label muted">↳ GST platform remits to IRD</span><span class="amount muted">−$2.25</span></div>
+      <div class="fee-row"><span class="label muted">↳ Stripe domestic fee</span><span class="amount muted">−$6.46</span></div>
+      <div class="fee-row piper-receives"><span class="label">Piper receives (before their IRD remittance)</span><span class="amount">~$338.00</span></div>
+      <div class="fee-row" style="color:#64748b; font-size:9pt;"><span class="label">Piper's true net (after paying $45 GST to IRD)</span><span class="amount">~$293.00</span></div>
+      <div class="fee-row" style="color:#16a34a;"><span class="label">Platform net profit (domestic card)</span><span class="amount">~$8.54</span></div>
+      <div class="fee-row" style="color:#d97706;"><span class="label">Platform net profit (international card)</span><span class="amount">~$2.34</span></div>
+    </div>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">⚠ 5% is Insufficient — Especially for International Cards</div>
+    <p>
+      At 5%, the platform earns as little as <strong>$1.71 per booking</strong> when a customer pays with
+      an international card and the piper is not GST registered. After accounting for infrastructure costs
+      (Convex, hosting, email), support time, and the risk of occasional chargebacks, the platform
+      would operate at a loss on a significant proportion of bookings.
+    </p>
+  </div>
+
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 5: RECOMMENDATION -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 5</div>
+    <h1>Platform Fee Recommendation</h1>
+  </div>
+
+  <div class="highlight-box">
+    <h3>Recommendation</h3>
+    <div class="highlight-row">
+      <div class="highlight-item">
+        <div class="big-number">10%</div>
+        <p>Platform fee + GST<br>on each booking</p>
+      </div>
+      <div class="highlight-item" style="border-left: 1px solid rgba(255,255,255,0.2); padding-left: 24px;">
+        <p style="margin-bottom: 8px;">This replaces the current 5% rate and provides:</p>
+        <ul style="color: #a0c0e0; padding-left: 16px;">
+          <li>Positive net margin on both domestic and international cards</li>
+          <li>Buffer for disputes, chargebacks, and refunds</li>
+          <li>Below-market rate vs competitors (most charge 15–20%)</li>
+          <li>Simple communication: "10% + GST service fee"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Comparison at $300 Booking — 5% vs 10% Platform Fee</h2>
+
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>5% (Current)</th><th>10% (Recommended)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">Platform fee (incl. GST)</td>
+        <td>$17.25</td>
+        <td>$34.50</td>
+      </tr>
+      <tr>
+        <td class="td-label">Platform GST to IRD</td>
+        <td>$2.25</td>
+        <td>$4.50</td>
+      </tr>
+      <tr>
+        <td class="td-label">Stripe cost (domestic 1.7%)</td>
+        <td>~$5.66</td>
+        <td>~$5.80</td>
+      </tr>
+      <tr>
+        <td class="td-label">Stripe cost (international 3.5%)</td>
+        <td>~$11.33</td>
+        <td>~$12.06</td>
+      </tr>
+      <tr>
+        <td class="td-label td-red">Net profit (domestic card)</td>
+        <td class="td-red">~$9.34</td>
+        <td class="td-green">~$24.20</td>
+      </tr>
+      <tr>
+        <td class="td-label td-red">Net profit (international card)</td>
+        <td class="td-red">~$3.67</td>
+        <td class="td-green">~$17.94</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer pays (non-GST piper)</td>
+        <td>$315.00</td>
+        <td>$334.50</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer pays (GST-reg piper)</td>
+        <td>$362.25</td>
+        <td>$379.50</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Market Context</h2>
+
+  <table>
+    <thead>
+      <tr><th>Platform Type</th><th>Typical Fee</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-label">Entertainment/talent marketplaces</td><td>15–25%</td></tr>
+      <tr><td class="td-label">Event booking platforms</td><td>10–20%</td></tr>
+      <tr><td class="td-label">Freelance service platforms (Fiverr, etc.)</td><td>20%</td></tr>
+      <tr><td class="td-label"><strong>Highland Bagpiper (recommended)</strong></td><td class="td-green"><strong>10% + GST</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-success">
+    <div class="callout-title">At 10%: Estimated Annual Platform Revenue</div>
+    <p>
+      Assuming 5 active pipers, each with 4 bookings per month at an average of $300:
+      20 bookings × $24.20 net ≈ <strong>$484/month · $5,808/year</strong> (domestic cards only).
+      This grows linearly with piper adoption and is a sustainable foundation for the platform.
+    </p>
+  </div>
+
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 6: IMPLEMENTATION PLAN -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 6</div>
+    <h1>Implementation Plan</h1>
+  </div>
+
+  <p>
+    The following steps transform the current system into a GST-aware, piper-friendly payment platform.
+    Steps are ordered to avoid breaking changes — each step is safe to deploy independently.
+  </p>
+
+  <h2>Step 1 — Schema: Add GST Fields</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <h3>File: <code>convex/schema.ts</code></h3>
+      <p>
+        Add three optional fields to the <code>bagpipers</code> table:
+        <code>gstRegistered</code> (boolean), <code>gstNumber</code> (string), <code>companyName</code> (string).
+        Add a <code>feeBreakdown</code> object to the <code>bookings</code> table to store the full GST
+        breakdown at time of payment. These are all optional — no migration needed, existing records are unaffected.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 2 — Fee Calculation Helper</h2>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <h3>New file: <code>convex/feeCalculations.ts</code></h3>
+      <p>
+        A pure TypeScript module (no Convex runtime dependency) containing the <code>calculateFees()</code>
+        function and the constants <code>PLATFORM_FEE_RATE = 0.10</code> and <code>GST_RATE = 0.15</code>.
+        This is the single source of truth for all fee logic, importable by both <code>stripe.ts</code>
+        and <code>bookings.ts</code>.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 3 — Piper Mutations: GST Support</h2>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <h3>File: <code>convex/bagpipers.ts</code></h3>
+      <p>
+        Add the three new GST fields to <code>createProfile</code> and <code>updateProfile</code> mutation args.
+        Add a dedicated <code>updateGstDetails</code> mutation for the Payments tab save action —
+        keeps GST management separate from general profile editing.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 4 — Stripe Checkout: GST-Aware Fees</h2>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <h3>File: <code>convex/stripe.ts</code></h3>
+      <p>
+        Replace the hardcoded <code>baseFee × 1.05</code> logic with <code>calculateFees()</code>.
+        Pass the full fee breakdown as Stripe session metadata (stringified) so it survives through
+        to the webhook. Update <code>application_fee_amount</code> to use the GST-inclusive platform fee.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 5 — Webhook: Persist Fee Breakdown</h2>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <h3>Files: <code>convex/stripe.ts</code> · <code>convex/stripeHelpers.ts</code></h3>
+      <p>
+        Update the <code>checkout.session.completed</code> webhook handler to extract the fee breakdown
+        from session metadata and pass it to <code>markPaid</code>. Update <code>markPaid</code> to
+        persist it on the booking document so pipers can always see the breakdown of any payment.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 6 — Bookings: GST-Aware Estimates</h2>
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <h3>File: <code>convex/bookings.ts</code></h3>
+      <p>
+        Update <code>createBooking</code> initial fee calculation to use <code>calculateFees()</code>.
+        Update quote notification messages to correctly describe whether the quoted amount is
+        GST-exclusive (for registered pipers) or flat (for unregistered pipers).
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 7 — Piper Profile UI: GST Section</h2>
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <h3>File: <code>src/components/BagpiperProfile.tsx</code></h3>
+      <p>
+        Add a <code>GstDetailsSection</code> component to the Payments tab. Includes: a GST registered
+        toggle, conditional GST number and company name fields, and a live fee breakdown preview card
+        that shows exactly what the customer will pay and what the piper will receive — updates
+        dynamically as they change their GST status.
+      </p>
+    </div>
+  </div>
+
+  <h2>Step 8 — Piper Dashboard: Booking Fee Display</h2>
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-content">
+      <h3>File: Piper bookings view component</h3>
+      <p>
+        Add a collapsible fee breakdown card to each paid booking in the piper's dashboard.
+        Shows: their base fee, GST component (if registered), platform fee, total customer paid,
+        and their received amount. Gives pipers the information they need for GST record-keeping.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 7: IRD COMPLIANCE -->
+<div class="page">
+  <div class="page-header">
+    <div class="section-label">Section 7</div>
+    <h1>IRD Compliance Notes</h1>
+  </div>
+
+  <h2>Platform Obligations (Matihiko Mahi Limited)</h2>
+
+  <ul>
+    <li>The platform must charge GST (15%) on its service fee for every booking</li>
+    <li>GST is calculated as 15/115 of the GST-inclusive platform fee per booking</li>
+    <li>The platform must file regular GST returns with IRD and remit collected GST</li>
+    <li>The <code>feeBreakdown.platformGst</code> field stored per booking provides an
+        accurate per-booking GST record for returns</li>
+    <li>Consider generating a monthly platform GST summary report from booking data</li>
+  </ul>
+
+  <h2>Piper Obligations</h2>
+
+  <ul>
+    <li><strong>GST-registered pipers:</strong> Must file and remit the GST component of each booking
+        with IRD as part of their regular GST returns. The piper receives the GST-inclusive amount
+        from Stripe; the GST portion is not theirs to keep.</li>
+    <li><strong>Non-registered pipers:</strong> No GST obligation. Their entire received amount is income.</li>
+    <li>The platform should advise pipers in writing (in the UI and in confirmation emails) of
+        their GST obligations — see the dashboard fee breakdown card in Step 8.</li>
+    <li>The <code>gstNumber</code> field is stored for record-keeping but cannot be validated in real-time
+        (IRD does not provide a public validation API). Include a note: "Please ensure your GST number
+        is correct — you are responsible for your GST compliance."</li>
+  </ul>
+
+  <h2>Record-Keeping Recommendation</h2>
+
+  <p>
+    When a booking is marked as paid, send the piper an automated email with the full fee breakdown.
+    This gives them a paper trail for their GST returns and reduces support queries. The breakdown
+    should include: booking date, event type, piper base fee, GST on their fee, platform fee, and
+    their received amount.
+  </p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Disclaimer</div>
+    <p>
+      This document provides a technical and financial analysis of the platform's fee structure
+      and is not legal or tax advice. Matihiko Mahi Limited should consult a qualified NZ accountant
+      or tax adviser to confirm GST treatment, particularly for any edge cases involving non-NZ
+      customers or pipers.
+    </p>
+  </div>
+
+  <hr class="section-divider">
+
+  <p style="font-size: 9pt; color: #94a3b8; text-align: center; margin-top: 40px;">
+    Prepared by Claude Code · Highland Bagpiper Platform · Matihiko Mahi Limited · 24 March 2026
+  </p>
+
+</div>
+
+</body>
+</html>

@@ -9,11 +9,24 @@ export const saveStripeAccountId = internalMutation({
   },
 });
 
+const feeBreakdownValidator = v.object({
+  piperBaseFee: v.number(),
+  piperGst: v.number(),
+  piperFeeIncGst: v.number(),
+  platformFeeExGst: v.number(),
+  platformGst: v.number(),
+  platformFeeIncGst: v.number(),
+  totalCharged: v.number(),
+  piperGstRegistered: v.boolean(),
+  platformFeeRate: v.number(),
+});
+
 export const markPaid = internalMutation({
   args: {
     bookingId: v.id("bookings"),
     amountPaid: v.number(),
     stripePaymentIntentId: v.string(),
+    feeBreakdown: v.optional(feeBreakdownValidator),
   },
   handler: async (ctx, args) => {
     const booking = await ctx.db.get(args.bookingId);
@@ -22,6 +35,10 @@ export const markPaid = internalMutation({
     await ctx.db.patch(args.bookingId, {
       status: "paid",
       stripePaymentIntentId: args.stripePaymentIntentId,
+      totalAmount: args.feeBreakdown?.totalCharged ?? args.amountPaid,
+      platformFee: args.feeBreakdown?.platformFeeIncGst ?? 0,
+      bagpiperAmount: args.feeBreakdown?.piperFeeIncGst ?? args.amountPaid,
+      feeBreakdown: args.feeBreakdown,
       payment: {
         depositAmount: args.amountPaid,
         depositPaidAt: Date.now(),

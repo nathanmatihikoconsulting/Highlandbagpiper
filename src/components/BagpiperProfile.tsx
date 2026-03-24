@@ -15,6 +15,145 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+function GstDetailsSection({ profile }: { profile: any }) {
+  const updateGstDetails = useMutation(api.bagpipers.updateGstDetails);
+  const [gstRegistered, setGstRegistered] = useState<boolean>(profile?.gstRegistered ?? false);
+  const [gstNumber, setGstNumber] = useState<string>(profile?.gstNumber ?? "");
+  const [companyName, setCompanyName] = useState<string>(profile?.companyName ?? "");
+  const [saving, setSaving] = useState(false);
+
+  // Keep local state in sync if profile reloads
+  useEffect(() => {
+    setGstRegistered(profile?.gstRegistered ?? false);
+    setGstNumber(profile?.gstNumber ?? "");
+    setCompanyName(profile?.companyName ?? "");
+  }, [profile?._id]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateGstDetails({
+        bagpiperId: profile._id,
+        gstRegistered,
+        gstNumber: gstRegistered && gstNumber.trim() ? gstNumber.trim() : undefined,
+        companyName: companyName.trim() || undefined,
+      });
+      toast.success("GST details saved");
+    } catch (err: any) {
+      toast.error(err.message ?? "Failed to save GST details");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Live fee preview based on current toggle state — uses same constants as backend
+  const PLATFORM_FEE_RATE = 0.10;
+  const GST_RATE = 0.15;
+  const EXAMPLE_FEE = 300;
+  const piperGst = gstRegistered ? EXAMPLE_FEE * GST_RATE : 0;
+  const platformFeeExGst = EXAMPLE_FEE * PLATFORM_FEE_RATE;
+  const platformFeeIncGst = platformFeeExGst * (1 + GST_RATE);
+  const customerTotal = EXAMPLE_FEE + piperGst + platformFeeIncGst;
+  const piperReceives = EXAMPLE_FEE + piperGst; // approximate — Stripe fees reduce this slightly
+
+  return (
+    <div className="max-w-lg space-y-6">
+      <div>
+        <h2 className="font-heading text-xl font-semibold text-charcoal mb-1">GST Registration</h2>
+        <p className="text-sm text-muted-foreground">
+          This determines how GST is calculated on your bookings. Keep this up to date.
+        </p>
+      </div>
+
+      {/* GST registered toggle */}
+      <label className="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={gstRegistered}
+          onChange={(e) => setGstRegistered(e.target.checked)}
+          className="accent-primary w-4 h-4"
+        />
+        <span className="font-medium text-charcoal">I am registered for GST in New Zealand</span>
+      </label>
+
+      {/* Conditional GST number + company name */}
+      {gstRegistered && (
+        <div className="space-y-4 pl-5 border-l-2 border-primary/30">
+          <div className="space-y-1.5">
+            <Label>GST Number</Label>
+            <Input
+              value={gstNumber}
+              onChange={(e) => setGstNumber(e.target.value)}
+              placeholder="e.g. 123-456-789"
+              maxLength={20}
+            />
+            <p className="text-xs text-muted-foreground">
+              Your IRD GST registration number. You are responsible for ensuring this is correct.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Trading / Company Name <span className="text-muted-foreground font-normal">(optional)</span></Label>
+            <Input
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="e.g. Pipes &amp; Drums Ltd"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Live fee breakdown preview */}
+      <div className="bg-gray-50 border rounded-lg overflow-hidden">
+        <div className="bg-charcoal text-white px-4 py-2.5 text-sm font-semibold">
+          How fees work on a $300 booking
+        </div>
+        <div className="px-4 py-3 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Your fee {gstRegistered ? "(excl. GST)" : ""}</span>
+            <span>${EXAMPLE_FEE.toFixed(2)}</span>
+          </div>
+          {gstRegistered && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">GST on your fee (15%) — you remit to IRD</span>
+              <span>${piperGst.toFixed(2)}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Platform fee (10% + GST)</span>
+            <span>${platformFeeIncGst.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-semibold border-t pt-2 mt-1">
+            <span>Customer pays</span>
+            <span>${customerTotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-emerald-700">
+            <span>You receive (approx.)</span>
+            <span>~${piperReceives.toFixed(2)}</span>
+          </div>
+          {gstRegistered && (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1">
+              You must file and remit the ${piperGst.toFixed(2)} GST component to IRD as part of your regular GST returns.
+            </p>
+          )}
+          {!gstRegistered && (
+            <p className="text-xs text-muted-foreground mt-1">
+              No GST applies to your portion. The platform fee includes GST which Highland Bagpiper remits to IRD.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <Button
+        onClick={handleSave}
+        disabled={saving}
+        className="bg-primary hover:bg-primary-hover text-white"
+      >
+        {saving ? "Saving…" : "Save GST Details"}
+      </Button>
+    </div>
+  );
+}
+
 function StripeConnectSection({ profile }: { profile: any }) {
   const createConnectAccountLink = useAction(api.stripe.createConnectAccountLink);
   const location = useLocation();
@@ -83,9 +222,8 @@ function StripeConnectSection({ profile }: { profile: any }) {
       ) : (
         <div className="space-y-4">
           <div className="bg-gray-50 border rounded-lg p-4 text-sm text-muted-foreground space-y-1">
-            <p>• Receive 25% deposits when customers accept your quote</p>
-            <p>• Receive the remaining 75% after the event</p>
-            <p>• Highland Bagpiper retains a 5% platform fee</p>
+            <p>• Receive payments when customers accept your quote</p>
+            <p>• Highland Bagpiper retains a 10% platform fee (+ GST)</p>
           </div>
           <Button
             onClick={handleConnect}
@@ -606,8 +744,11 @@ export function BagpiperProfile() {
             {profile && <FileUpload bagpiperId={profile._id} />}
           </TabsContent>
 
-          <TabsContent value="payments" className="p-6 mt-0">
+          <TabsContent value="payments" className="p-6 mt-0 space-y-10">
             <StripeConnectSection profile={profile} />
+            <div className="border-t pt-8">
+              <GstDetailsSection profile={profile} />
+            </div>
           </TabsContent>
         </Tabs>
       </Card>

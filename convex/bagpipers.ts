@@ -23,6 +23,9 @@ export const createProfile = mutation({
     travelRadius: v.number(),
     youtubeVideos: v.array(v.string()),
     specialties: v.array(v.string()),
+    gstRegistered: v.optional(v.boolean()),
+    gstNumber: v.optional(v.string()),
+    companyName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -66,6 +69,9 @@ export const updateProfile = mutation({
     travelRadius: v.number(),
     youtubeVideos: v.array(v.string()),
     specialties: v.array(v.string()),
+    gstRegistered: v.optional(v.boolean()),
+    gstNumber: v.optional(v.string()),
+    companyName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -235,6 +241,27 @@ export const setVerified = mutation({
     const user = await ctx.db.get(userId);
     if ((user as any)?.email !== ADMIN_EMAIL) throw new Error("Admin access required");
     await ctx.db.patch(args.bagpiperId, { verified: args.verified });
+  },
+});
+
+export const updateGstDetails = mutation({
+  args: {
+    bagpiperId: v.id("bagpipers"),
+    gstRegistered: v.boolean(),
+    gstNumber: v.optional(v.string()),
+    companyName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Must be logged in");
+
+    const bagpiper = await ctx.db.get(args.bagpiperId);
+    if (!bagpiper || bagpiper.userId !== userId) {
+      throw new Error("Not authorized to update this profile");
+    }
+
+    const { bagpiperId, ...updates } = args;
+    await ctx.db.patch(bagpiperId, updates);
   },
 });
 
