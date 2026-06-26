@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(npx convex dev --once)",
+      "Bash(npx tsc:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git fetch:*)",
+      "Edit(src/**)",
+      "Edit(convex/**)",
+      "Edit(docs/**)",
+      "Edit(public/**)",
+      "Write(src/**)",
+      "Write(convex/**)",
+      "Write(docs/**)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Edit(convex/http.ts)",
+      "Edit(convex/router.ts)",
+      "Edit(convex/stripe.ts)",
+      "Edit(convex/stripeHelpers.ts)",
+      "Edit(convex/stripeWebhook.ts)",
+      "Edit(convex/feeCalculations.ts)",
+      "Edit(convex/auth.ts)",
+      "Edit(convex/auth.config.ts)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(npx convex deploy:*)"
+    ]
+  }
+}
